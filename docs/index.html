@@ -2522,7 +2522,7 @@ async function exportData() {
 
 async function loadDemoData() {
   try {
-    const data = await fetch('/demo-data.json').then(r => {
+    const data = await fetch('./demo-data.json').then(r => {
       if (!r.ok) throw new Error('无法加载模拟数据文件');
       return r.json();
     });

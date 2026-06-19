@@ -1,0 +1,2719 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>合伙记 - 合作项目财务协作系统</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --ink-soft: #16213e;
+    --accent: #e94560;
+    --accent-warm: #ff6b6b;
+    --gold: #f4a261;
+    --teal: #2a9d8f;
+    --cream: #faf3e0;
+    --cream-dark: #f5e6d3;
+    --surface: #ffffff;
+    --surface-elevated: #fffef8;
+    --text-primary: #1a1a2e;
+    --text-secondary: #4a4a6a;
+    --text-muted: #8a8aaa;
+    --border: rgba(26,26,46,0.08);
+    --shadow-sm: 0 2px 8px rgba(26,26,46,0.06);
+    --shadow-md: 0 8px 32px rgba(26,26,46,0.1);
+    --shadow-glow: 0 0 40px rgba(233,69,96,0.15);
+    --radius-sm: 8px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Noto Sans SC', -apple-system, sans-serif;
+    background: var(--cream);
+    color: var(--text-primary);
+    line-height: 1.6;
+    font-size: 15px;
+    overflow-x: hidden;
+  }
+
+  /* Hero */
+  .hero {
+    position: relative;
+    background: linear-gradient(135deg, var(--ink) 0%, var(--ink-soft) 50%, #1a1a3e 100%);
+    padding: 4rem 1.5rem 5rem;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(233,69,96,0.15) 0%, transparent 70%);
+    animation: pulse 8s ease-in-out infinite;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(42,157,143,0.1) 0%, transparent 70%);
+    animation: pulse 10s ease-in-out infinite reverse;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.1); opacity: 1; }
+  }
+  .hero-content {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(233,69,96,0.15);
+    border: 1px solid rgba(233,69,96,0.3);
+    color: var(--accent-warm);
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 0.4rem 1rem;
+    border-radius: 999px;
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.05em;
+  }
+  .hero-badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: blink 2s ease-in-out infinite;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  .hero h1 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.02em;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+  }
+  .hero p {
+    color: rgba(255,255,255,0.7);
+    font-size: 1.15rem;
+    max-width: 560px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  /* Layout */
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
+  .main { margin-top: -2rem; position: relative; z-index: 2; }
+
+  /* Tabs */
+  .tab-bar {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: 0.5rem;
+    box-shadow: var(--shadow-md);
+    margin-bottom: 2rem;
+    display: flex;
+    gap: 0.25rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tab-bar::-webkit-scrollbar { display: none; }
+  .tab {
+    flex: 1;
+    min-width: 100px;
+    padding: 0.85rem 1rem;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    text-align: center;
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    transition: var(--transition);
+    border: none;
+    background: transparent;
+    white-space: nowrap;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+  }
+  .tab:hover { background: var(--cream); color: var(--text-primary); }
+  .tab.active {
+    background: linear-gradient(135deg, var(--accent), var(--accent-warm));
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(233,69,96,0.3);
+  }
+  .tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 3px;
+    background: rgba(255,255,255,0.5);
+    border-radius: 2px;
+  }
+  .tab i { width: 16px; height: 16px; flex-shrink: 0; }
+
+  .tab-content { display: none; animation: fadeIn 0.4s ease; }
+  .tab-content.active { display: block; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Cards */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.25rem;
+  }
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--gold));
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+  .card:hover::before { opacity: 1; }
+  .card h3 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin-bottom: 1.25rem;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .card h3 .icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .card h3 .icon i { width: 18px; height: 18px; }
+
+  /* Forms */
+  .form-group { margin-bottom: 1rem; }
+  label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  input, select, textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.95rem;
+    background: var(--surface-elevated);
+    color: var(--text-primary);
+    transition: var(--transition);
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(233,69,96,0.1);
+  }
+  input::placeholder { color: var(--text-muted); }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border: none;
+    transition: var(--transition);
+    font-family: inherit;
+  }
+  .btn i { width: 16px; height: 16px; }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent-warm));
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(233,69,96,0.3);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(233,69,96,0.4); }
+  .btn-secondary {
+    background: var(--surface);
+    color: var(--text-secondary);
+    border: 2px solid var(--border);
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-teal {
+    background: linear-gradient(135deg, var(--teal), #21867a);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(42,157,143,0.3);
+  }
+  .btn-teal:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(42,157,143,0.4); }
+  .btn-gold {
+    background: linear-gradient(135deg, var(--gold), #e9c46a);
+    color: var(--ink);
+    box-shadow: 0 4px 16px rgba(244,162,97,0.3);
+  }
+  .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(244,162,97,0.4); }
+
+  /* Stats */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .stat-card {
+    background: var(--surface);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    text-align: center;
+    border: 1px solid var(--border);
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+  }
+  .stat-card.income::after { background: linear-gradient(90deg, var(--teal), #4ecdc4); }
+  .stat-card.expense::after { background: linear-gradient(90deg, var(--accent), var(--accent-warm)); }
+  .stat-card.net::after { background: linear-gradient(90deg, var(--gold), #e9c46a); }
+  .stat-card.count::after { background: linear-gradient(90deg, var(--ink), var(--ink-soft)); }
+  .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+  .stat-card .stat-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 0.6rem;
+  }
+  .stat-card .stat-icon i { width: 20px; height: 20px; }
+  .stat-card.income .stat-icon { background: rgba(42,157,143,0.1); color: var(--teal); }
+  .stat-card.expense .stat-icon { background: rgba(233,69,96,0.1); color: var(--accent); }
+  .stat-card.net .stat-icon { background: rgba(244,162,97,0.1); color: var(--gold); }
+  .stat-card.count .stat-icon { background: rgba(26,26,46,0.08); color: var(--ink); }
+  .stat-card .value {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+  .stat-card.income .value { color: var(--teal); }
+  .stat-card.expense .value { color: var(--accent); }
+  .stat-card.net .value { color: var(--gold); }
+  .stat-card.count .value { color: var(--ink); }
+  .stat-card .label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* Table */
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  th {
+    background: var(--ink);
+    color: rgba(255,255,255,0.9);
+    padding: 0.85rem 1rem;
+    text-align: left;
+    font-weight: 500;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-secondary);
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--cream); }
+
+  /* Badges */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .badge i { width: 12px; height: 12px; }
+  .badge.income { background: rgba(42,157,143,0.1); color: var(--teal); }
+  .badge.expense { background: rgba(233,69,96,0.1); color: var(--accent); }
+  .badge.pending { background: rgba(244,162,97,0.1); color: var(--gold); }
+  .badge.paid { background: rgba(42,157,143,0.1); color: var(--teal); }
+  .badge.overdue { background: rgba(233,69,96,0.1); color: var(--accent); }
+
+  /* Alert */
+  .alert {
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius-sm);
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    animation: slideIn 0.3s ease;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  .alert.success { background: rgba(42,157,143,0.08); border-left: 4px solid var(--teal); color: #1d6f63; }
+  .alert.error { background: rgba(233,69,96,0.08); border-left: 4px solid var(--accent); color: #c73e54; }
+  .alert i { width: 18px; height: 18px; flex-shrink: 0; }
+
+  /* Pre / JSON */
+  pre {
+    background: var(--ink);
+    color: rgba(255,255,255,0.85);
+    padding: 1.25rem;
+    border-radius: var(--radius-md);
+    overflow-x: auto;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    font-family: 'SF Mono', Monaco, monospace;
+  }
+
+  /* Report Section */
+  .report-section {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+    margin-bottom: 1.5rem;
+  }
+  .report-section h3 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .report-section h3 i { width: 22px; height: 22px; color: var(--accent); }
+
+  /* Chart Canvas */
+  .chart-canvas-wrap {
+    background: var(--surface-elevated);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    margin: 1rem 0;
+    border: 1px solid var(--border);
+    position: relative;
+  }
+  .chart-canvas-wrap canvas {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .chart-legend {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+  }
+  .chart-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+  }
+  .chart-legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+  }
+
+  /* Chart placeholder */
+  .chart-container {
+    background: var(--surface-elevated);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    margin: 1rem 0;
+    border: 1px solid var(--border);
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .chart-bar {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.5rem;
+    height: 120px;
+    padding: 0 1rem;
+  }
+  .chart-bar-item {
+    width: 40px;
+    border-radius: 4px 4px 0 0;
+    transition: height 0.6s ease;
+    position: relative;
+  }
+  .chart-bar-item::after {
+    content: attr(data-label);
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  /* Report Controls */
+  .report-controls {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+    align-items: flex-end;
+  }
+  .report-controls .form-group { margin-bottom: 0; flex: 1; min-width: 150px; }
+
+  /* Help Button */
+  /* Login Page */
+  .login-overlay {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, var(--ink) 0%, var(--ink-soft) 50%, #1a1a3e 100%);
+    z-index: 5000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    visibility: visible;
+    transition: all 0.5s ease;
+  }
+  .login-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .login-overlay::before {
+    content: '';
+    position: absolute;
+    top: -30%;
+    right: -10%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(233,69,96,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: float 8s ease-in-out infinite;
+  }
+  .login-overlay::after {
+    content: '';
+    position: absolute;
+    bottom: -20%;
+    left: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(42,157,143,0.12) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: float 10s ease-in-out infinite reverse;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-30px); }
+  }
+  .login-card {
+    position: relative;
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem;
+    width: 90%;
+    max-width: 440px;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.3);
+    animation: loginSlideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  @keyframes loginSlideUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .login-card h1 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 0.25rem;
+    color: var(--ink);
+  }
+  .login-card .login-subtitle {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.75rem;
+  }
+  .login-card .form-group { margin-bottom: 1rem; }
+  .login-card label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 0.35rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .login-card input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    font-family: inherit;
+    background: var(--surface-elevated);
+    color: var(--text-primary);
+    transition: var(--transition);
+  }
+  .login-card input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(233,69,96,0.1);
+  }
+  .login-card .btn-login {
+    width: 100%;
+    padding: 0.85rem;
+    background: linear-gradient(135deg, var(--accent), var(--accent-warm));
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: var(--transition);
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  .login-card .btn-login:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(233,69,96,0.3);
+  }
+  .login-card .btn-login i { width: 18px; height: 18px; }
+  .login-hint {
+    margin-top: 1.25rem;
+    background: rgba(244,162,97,0.08);
+    border: 1px dashed var(--gold);
+    border-radius: var(--radius-sm);
+    padding: 0.85rem 1rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+  .login-hint strong {
+    color: var(--gold);
+    font-weight: 600;
+  }
+  .login-hint code {
+    background: var(--cream);
+    padding: 0.1rem 0.35rem;
+    border-radius: 3px;
+    font-size: 0.82rem;
+    font-family: 'SF Mono', Monaco, monospace;
+    color: var(--ink);
+  }
+  .login-error {
+    margin-top: 0.75rem;
+    padding: 0.6rem 0.85rem;
+    background: rgba(233,69,96,0.08);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    font-size: 0.85rem;
+    color: #c73e54;
+    display: none;
+    animation: slideIn 0.3s ease;
+  }
+  .login-version {
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+  .login-version a {
+    color: var(--teal);
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .login-version a:hover { text-decoration: underline; }
+
+  /* Version Info Bar */
+  .version-bar {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 0.6rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
+  }
+  .version-bar .version-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: var(--cream);
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-weight: 600;
+    color: var(--teal);
+  }
+  .version-bar .version-tag i { width: 12px; height: 12px; }
+  .version-bar a {
+    color: var(--teal);
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .version-bar a:hover { text-decoration: underline; }
+
+  /* Version Changelog Overlay */
+  .changelog-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(26,26,46,0.5);
+    backdrop-filter: blur(4px);
+    z-index: 6000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+  .changelog-overlay.open {
+    opacity: 1;
+    visibility: visible;
+  }
+  .changelog-panel {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    width: 90%;
+    max-width: 640px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 24px 80px rgba(26,26,46,0.25);
+    transform: translateY(30px) scale(0.95);
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .changelog-overlay.open .changelog-panel {
+    transform: translateY(0) scale(1);
+  }
+  .changelog-header {
+    position: sticky;
+    top: 0;
+    background: linear-gradient(135deg, var(--teal), #1d6f63);
+    color: #fff;
+    padding: 1.5rem 2rem;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 1;
+  }
+  .changelog-header h2 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .changelog-header h2 i { width: 22px; height: 22px; }
+  .changelog-close {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+  }
+  .changelog-close:hover { background: rgba(255,255,255,0.25); }
+  .changelog-close i { width: 18px; height: 18px; }
+  .changelog-body { padding: 1.5rem 2rem 2rem; }
+  .changelog-item {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .changelog-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .changelog-item .cl-version {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.35rem;
+  }
+  .changelog-item .cl-version i { width: 18px; height: 18px; color: var(--teal); }
+  .changelog-item .cl-date {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+  }
+  .changelog-item .cl-list {
+    list-style: none;
+    padding: 0;
+  }
+  .changelog-item .cl-list li {
+    position: relative;
+    padding: 0.3rem 0 0.3rem 1.25rem;
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+  .changelog-item .cl-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.7rem;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--teal);
+  }
+  .changelog-item .cl-list li.cl-new::before { background: var(--accent); }
+  .changelog-item .cl-list li.cl-fix::before { background: var(--gold); }
+  .changelog-item .cl-tag {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    margin-left: 0.4rem;
+    vertical-align: middle;
+  }
+  .changelog-item .cl-tag.new { background: rgba(233,69,96,0.1); color: var(--accent); }
+  .changelog-item .cl-tag.fix { background: rgba(244,162,97,0.1); color: var(--gold); }
+  .changelog-item .cl-tag.improve { background: rgba(42,157,143,0.1); color: var(--teal); }
+
+  /* Adjust main content bottom for version bar */
+  .container.main { padding-bottom: 3rem; }
+
+  .help-btn {
+    position: fixed;
+    bottom: 3.5rem;
+    right: 2rem;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--ink), var(--ink-soft));
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(26,26,46,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    transition: var(--transition);
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+  }
+  .help-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 28px rgba(26,26,46,0.4);
+  }
+  .help-btn i { width: 22px; height: 22px; }
+
+  /* Help Overlay */
+  .help-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(26,26,46,0.5);
+    backdrop-filter: blur(4px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+  .help-overlay.open {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .help-panel {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    width: 90%;
+    max-width: 780px;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 24px 80px rgba(26,26,46,0.25);
+    transform: translateY(30px) scale(0.95);
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .help-overlay.open .help-panel {
+    transform: translateY(0) scale(1);
+  }
+
+  .help-header {
+    position: sticky;
+    top: 0;
+    background: linear-gradient(135deg, var(--ink), var(--ink-soft));
+    color: #fff;
+    padding: 1.75rem 2rem;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 1;
+  }
+  .help-header h2 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .help-header h2 i { width: 22px; height: 22px; }
+  .help-close {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+  }
+  .help-close:hover { background: rgba(255,255,255,0.25); }
+  .help-close i { width: 18px; height: 18px; }
+
+  .help-body { padding: 2rem; }
+
+  .help-section {
+    margin-bottom: 2rem;
+  }
+  .help-section:last-child { margin-bottom: 0; }
+  .help-section h3 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .help-section h3 i { width: 20px; height: 20px; color: var(--accent); }
+
+  .help-step {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    align-items: flex-start;
+  }
+  .help-step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-warm));
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .help-step p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+  .help-step p strong { color: var(--text-primary); }
+  .help-step code {
+    background: var(--cream);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.82rem;
+    color: var(--ink);
+    font-family: 'SF Mono', Monaco, monospace;
+  }
+
+  .help-role-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+  }
+  .help-role-card {
+    background: var(--cream);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+    border: 1px solid var(--border);
+  }
+  .help-role-card h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .help-role-card h4 i { width: 16px; height: 16px; }
+  .help-role-card p {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  .help-tip {
+    background: rgba(42,157,143,0.06);
+    border-left: 3px solid var(--teal);
+    padding: 0.75rem 1rem;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .help-tip i { width: 16px; height: 16px; color: var(--teal); flex-shrink: 0; margin-top: 2px; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .hero h1 { font-size: 2.25rem; }
+    .hero { padding: 3rem 1rem 4rem; }
+    .grid { grid-template-columns: 1fr; }
+    .tab { min-width: 80px; font-size: 0.8rem; padding: 0.7rem 0.5rem; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .report-controls { flex-direction: column; }
+    .help-btn { bottom: 2.75rem; right: 1.25rem; width: 44px; height: 44px; font-size: 1.1rem; }
+    .help-panel { width: 95%; max-height: 90vh; }
+    .help-body { padding: 1.25rem; }
+    .help-role-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Login Overlay -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-card">
+    <h1>合伙记</h1>
+    <p class="login-subtitle">合作项目财务协作系统 — 请登录后使用</p>
+    <div class="form-group">
+      <label>账号</label>
+      <input type="text" id="login-user" placeholder="请输入账号" autocomplete="username">
+    </div>
+    <div class="form-group">
+      <label>密码</label>
+      <input type="password" id="login-pass" placeholder="请输入密码" autocomplete="current-password">
+    </div>
+    <button class="btn-login" onclick="handleLogin()"><i data-lucide="log-in"></i>登 录</button>
+    <div class="login-error" id="loginError"></div>
+    <div class="login-hint">
+      <strong>测试阶段提示：</strong><br>
+      管理员账号：<code>admin</code> &nbsp; 密码：<code>admin123</code><br>
+      普通用户账号：<code>user</code> &nbsp; 密码：<code>user123</code><br>
+      <span style="font-size:0.75rem;color:var(--text-muted)">（后续开发完成后将删除此提示）</span>
+    </div>
+    <div class="login-version">
+      当前版本 v1.0.0 &middot; <a onclick="toggleChangelog()">查看更新记录</a>
+    </div>
+  </div>
+</div>
+
+<!-- Changelog Overlay -->
+<div class="changelog-overlay" id="changelogOverlay" onclick="if(event.target===this)toggleChangelog()">
+  <div class="changelog-panel">
+    <div class="changelog-header">
+      <h2><i data-lucide="git-branch"></i>版本更新记录</h2>
+      <button class="changelog-close" onclick="toggleChangelog()"><i data-lucide="x"></i></button>
+    </div>
+    <div class="changelog-body">
+      <div class="changelog-item">
+        <div class="cl-version"><i data-lucide="tag"></i>v1.0.0</div>
+        <div class="cl-date">2026-06-19</div>
+        <ul class="cl-list">
+          <li class="cl-new">系统初始化，完成基础架构搭建 <span class="cl-tag new">新增</span></li>
+          <li class="cl-new">项目管理功能：创建项目、添加成员、设置分成比例 <span class="cl-tag new">新增</span></li>
+          <li class="cl-new">收支记录功能：录入收入/支出、按日期范围查询统计 <span class="cl-tag new">新增</span></li>
+          <li class="cl-new">利润计算功能：自动计算净利润、按比例分配、情景模拟 <span class="cl-tag new">新增</span></li>
+          <li class="cl-new">供应商对账功能：添加供应商、记录付款、自动对账 <span class="cl-tag new">新增</span></li>
+          <li class="cl-new">发票管理功能：上传发票（模拟OCR）、查看发票列表 <span class="cl-tag new">新增</span></li>
+          <li class="cl-new">报表中心：月度/年度收支对比、利润走势、分类占比、趋势分析 <span class="cl-tag new">新增</span></li>
+          <li class="cl-new">用户管理：创建用户、角色分配、权限矩阵查看 <span class="cl-tag new">新增</span></li>
+          <li class="cl-new">导入导出：批量导入交易数据（JSON）、导出完整报表 <span class="cl-tag new">新增</span></li>
+          <li class="cl-new">系统登录页面：权限验证，仅授权人员可使用 <span class="cl-tag new">新增</span></li>
+          <li class="cl-new">版本信息与更新记录功能 <span class="cl-tag new">新增</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Version Bar (shown after login) -->
+<div class="version-bar" id="versionBar" style="display:none">
+  <div>
+    <span class="version-tag"><i data-lucide="tag"></i>v1.0.0</span>
+    <span style="margin-left:0.5rem">合伙记 &copy; 2026</span>
+  </div>
+  <div>
+    <a onclick="toggleChangelog()"><i data-lucide="history" style="width:12px;height:12px;vertical-align:-2px"></i> 更新记录</a>
+    <span style="margin:0 0.5rem">|</span>
+    <a onclick="handleLogout()"><i data-lucide="log-out" style="width:12px;height:12px;vertical-align:-2px"></i> 退出登录</a>
+  </div>
+</div>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-content">
+    <h1>合伙记</h1>
+    <p>合作项目财务协作系统 — 让每一笔合作账目都清晰透明</p>
+    <button class="btn btn-secondary" onclick="loadDemoData()" style="margin-top:1.5rem;background:transparent;border:2px solid rgba(255,255,255,0.3);color:rgba(255,255,255,0.8)"><i data-lucide="database"></i>加载模拟数据</button>
+  </div>
+</section>
+
+<div class="container main">
+
+  <!-- Tabs -->
+  <div class="tab-bar">
+    <button class="tab active" onclick="switchTab('projects', this)"><i data-lucide="folder-kanban"></i>项目管理</button>
+    <button class="tab" onclick="switchTab('transactions', this)"><i data-lucide="arrow-left-right"></i>收支记录</button>
+    <button class="tab" onclick="switchTab('profit', this)"><i data-lucide="trending-up"></i>利润计算</button>
+    <button class="tab" onclick="switchTab('suppliers', this)"><i data-lucide="truck"></i>供应商对账</button>
+    <button class="tab" onclick="switchTab('invoices', this)"><i data-lucide="file-text"></i>发票管理</button>
+    <button class="tab" onclick="switchTab('report', this)"><i data-lucide="bar-chart-3"></i>报表中心</button>
+    <button class="tab" onclick="switchTab('users', this)"><i data-lucide="shield-check"></i>用户管理</button>
+    <button class="tab" onclick="switchTab('excel', this)"><i data-lucide="file-spreadsheet"></i>导入导出</button>
+  </div>
+
+  <!-- Projects -->
+  <div id="projects" class="tab-content active">
+    <div class="grid">
+      <div class="card">
+        <h3><span class="icon" style="background:rgba(233,69,96,0.1)"><i data-lucide="plus-circle" style="color:var(--accent)"></i></span> 创建项目</h3>
+        <div class="form-group"><label>项目名称</label><input id="p-name" placeholder="例如：摄影工作室联名"></div>
+        <div class="form-group"><label>描述</label><input id="p-desc" placeholder="项目简介"></div>
+        <div class="form-group"><label>创建者用户ID</label><input id="p-user" value="user-1"></div>
+        <button class="btn btn-primary" onclick="createProject()"><i data-lucide="rocket"></i>创建项目</button>
+      </div>
+      <div class="card">
+        <h3><span class="icon" style="background:rgba(42,157,143,0.1)"><i data-lucide="user-plus" style="color:var(--teal)"></i></span> 添加成员</h3>
+        <div class="form-group"><label>项目ID</label><input id="m-pid" placeholder="project-1"></div>
+        <div class="form-group"><label>用户ID</label><input id="m-uid" placeholder="user-2"></div>
+        <div class="form-group"><label>角色</label>
+          <select id="m-role"><option value="editor">编辑</option><option value="viewer">只读</option><option value="admin">管理员</option></select>
+        </div>
+        <div class="form-group"><label>分成比例</label><input id="m-ratio" type="number" step="0.1" value="0.3"></div>
+        <button class="btn btn-teal" onclick="addMember()"><i data-lucide="user-check"></i>添加成员</button>
+      </div>
+      <div class="card">
+        <h3><span class="icon" style="background:rgba(244,162,97,0.1)"><i data-lucide="sliders-horizontal" style="color:var(--gold)"></i></span> 设置分成比例</h3>
+        <div class="form-group"><label>项目ID</label><input id="r-pid" placeholder="project-1"></div>
+        <div class="form-group"><label>比例JSON</label><input id="r-json" value='{"user-1":0.5,"user-2":0.5}'></div>
+        <button class="btn btn-gold" onclick="setRatios()"><i data-lucide="settings-2"></i>设置比例</button>
+      </div>
+    </div>
+    <div class="card" style="margin-top:1.25rem">
+      <h3><span class="icon" style="background:rgba(26,26,46,0.08)"><i data-lucide="list" style="color:var(--ink)"></i></span> 项目列表</h3>
+      <button class="btn btn-secondary" onclick="loadProjects()" style="margin-bottom:1rem"><i data-lucide="refresh-cw"></i>刷新列表</button>
+      <div id="project-list"></div>
+    </div>
+  </div>
+
+  <!-- Transactions -->
+  <div id="transactions" class="tab-content">
+    <div class="grid">
+      <div class="card">
+        <h3><span class="icon" style="background:rgba(233,69,96,0.1)"><i data-lucide="receipt" style="color:var(--accent)"></i></span> 记录收支</h3>
+        <div class="form-group"><label>项目ID</label><input id="t-pid" placeholder="project-1"></div>
+        <div class="form-group"><label>类型</label>
+          <select id="t-type"><option value="income">收入</option><option value="expense">支出</option></select>
+        </div>
+        <div class="form-group"><label>金额</label><input id="t-amount" type="number" placeholder="1000"></div>
+        <div class="form-group"><label>日期</label><input id="t-date" type="date"></div>
+        <div class="form-group"><label>描述</label><input id="t-desc" placeholder="例如：客户首付款"></div>
+        <div class="form-group"><label>分类</label><input id="t-cat" value="general"></div>
+        <div class="form-group"><label>记录人</label><input id="t-user" value="user-1"></div>
+        <button class="btn btn-primary" onclick="recordTx()"><i data-lucide="save"></i>记录</button>
+      </div>
+      <div class="card">
+        <h3><span class="icon" style="background:rgba(42,157,143,0.1)"><i data-lucide="search" style="color:var(--teal)"></i></span> 查询与统计</h3>
+        <div class="form-group"><label>项目ID</label><input id="q-pid" placeholder="project-1"></div>
+        <div class="form-group"><label>开始日期</label><input id="q-from" type="date"></div>
+        <div class="form-group"><label>结束日期</label><input id="q-to" type="date"></div>
+        <div style="display:flex;gap:0.5rem">
+          <button class="btn btn-primary" onclick="queryTotals()"><i data-lucide="calculator"></i>统计</button>
+          <button class="btn btn-secondary" onclick="queryTxs()"><i data-lucide="filter"></i>查询明细</button>
+        </div>
+        <div id="tx-stats" style="margin-top:1rem"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:1.25rem">
+      <h3><span class="icon" style="background:rgba(26,26,46,0.08)"><i data-lucide="scroll-text" style="color:var(--ink)"></i></span> 交易明细</h3>
+      <div id="tx-list"></div>
+    </div>
+  </div>
+
+  <!-- Profit -->
+  <div id="profit" class="tab-content">
+    <div class="grid">
+      <div class="card">
+        <h3><span class="icon" style="background:rgba(244,162,97,0.1)"><i data-lucide="coins" style="color:var(--gold)"></i></span> 利润计算</h3>
+        <div class="form-group"><label>项目ID</label><input id="pr-pid" placeholder="project-1"></div>
+        <button class="btn btn-primary" onclick="calcProfit()"><i data-lucide="calculator"></i>计算利润</button>
+        <div id="profit-result" style="margin-top:1rem"></div>
+      </div>
+      <div class="card">
+        <h3><span class="icon" style="background:rgba(42,157,143,0.1)"><i data-lucide="lightbulb" style="color:var(--teal)"></i></span> 情景模拟</h3>
+        <div class="form-group"><label>项目ID</label><input id="sim-pid" placeholder="project-1"></div>
+        <div class="form-group"><label>额外收入</label><input id="sim-inc" type="number" value="0"></div>
+        <div class="form-group"><label>额外支出</label><input id="sim-exp" type="number" value="0"></div>
+        <button class="btn btn-teal" onclick="simulateProfit()"><i data-lucide="flask-conical"></i>模拟</button>
+        <div id="sim-result" style="margin-top:1rem"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Suppliers -->
+  <div id="suppliers" class="tab-content">
+    <div class="grid">
+      <div class="card">
+        <h3><span class="icon" style="background:rgba(233,69,96,0.1)"><i data-lucide="building-2" style="color:var(--accent)"></i></span> 添加供应商</h3>
+        <div class="form-group"><label>项目ID</label><input id="s-pid" placeholder="project-1"></div>
+        <div class="form-group"><label>供应商名称</label><input id="s-name" placeholder="例如：印刷厂"></div>
+        <div class="form-group"><label>联系方式</label><input id="s-contact" placeholder="电话/邮箱"></div>
+        <button class="btn btn-primary" onclick="addSupplier()"><i data-lucide="plus"></i>添加</button>
+      </div>
+      <div class="card">
+        <h3><span class="icon" style="background:rgba(244,162,97,0.1)"><i data-lucide="credit-card" style="color:var(--gold)"></i></span> 记录付款</h3>
+        <div class="form-group"><label>供应商ID</label><input id="pay-sid" placeholder="supplier-1"></div>
+        <div class="form-group"><label>金额</label><input id="pay-amount" type="number" placeholder="500"></div>
+        <div class="form-group"><label>状态</label>
+          <select id="pay-status"><option value="pending">待付</option><option value="paid">已付</option><option value="overdue">逾期</option></select>
+        </div>
+        <div class="form-group"><label>到期日</label><input id="pay-due" type="date"></div>
+        <button class="btn btn-teal" onclick="recordPayment()"><i data-lucide="wallet"></i>记录</button>
+      </div>
+      <div class="card">
+        <h3><span class="icon" style="background:rgba(42,157,143,0.1)"><i data-lucide="check-circle" style="color:var(--teal)"></i></span> 对账</h3>
+        <div class="form-group"><label>供应商ID</label><input id="rec-sid" placeholder="supplier-1"></div>
+        <button class="btn btn-primary" onclick="reconcile()"><i data-lucide="git-compare"></i>开始对账</button>
+        <div id="reconcile-result" style="margin-top:1rem"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Invoices -->
+  <div id="invoices" class="tab-content">
+    <div class="grid">
+      <div class="card">
+        <h3><span class="icon" style="background:rgba(233,69,96,0.1)"><i data-lucide="upload" style="color:var(--accent)"></i></span> 上传发票（模拟OCR）</h3>
+        <div class="form-group"><label>项目ID</label><input id="i-pid" placeholder="project-1"></div>
+        <div class="form-group"><label>文件名</label><input id="i-file" placeholder="invoice_2024_001.jpg"></div>
+        <button class="btn btn-primary" onclick="uploadInvoice()"><i data-lucide="scan"></i>上传</button>
+      </div>
+      <div class="card">
+        <h3><span class="icon" style="background:rgba(42,157,143,0.1)"><i data-lucide="files" style="color:var(--teal)"></i></span> 发票列表</h3>
+        <div class="form-group"><label>项目ID</label><input id="il-pid" placeholder="project-1"></div>
+        <button class="btn btn-teal" onclick="listInvoices()"><i data-lucide="search"></i>查询</button>
+        <div id="invoice-list" style="margin-top:1rem"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Report -->
+  <div id="report" class="tab-content">
+    <div class="card" style="margin-bottom:1.25rem">
+      <h3><span class="icon" style="background:rgba(244,162,97,0.1)"><i data-lucide="bar-chart-3" style="color:var(--gold)"></i></span> 财务报表</h3>
+      <div class="report-controls">
+        <div class="form-group"><label>项目ID</label><input id="rep-pid" placeholder="project-1"></div>
+        <div class="form-group"><label>年份</label>
+          <select id="rep-year">
+            <option value="2026">2026年</option>
+            <option value="2025">2025年</option>
+            <option value="2024" selected>2024年</option>
+            <option value="2023">2023年</option>
+          </select>
+        </div>
+        <div class="form-group"><label>维度</label>
+          <select id="rep-dimension">
+            <option value="monthly">按月查看</option>
+            <option value="yearly">按年查看</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:0.5rem;flex-shrink:0">
+          <button class="btn btn-primary" onclick="generateReport()"><i data-lucide="pie-chart"></i>生成报表</button>
+          <button class="btn btn-gold" onclick="generateTrendReport()"><i data-lucide="trending-up"></i>趋势分析</button>
+        </div>
+      </div>
+    </div>
+    <div id="report-content"></div>
+  </div>
+
+  <!-- User Management -->
+  <div id="users" class="tab-content">
+    <div class="grid">
+      <div class="card">
+        <h3><span class="icon" style="background:rgba(233,69,96,0.1)"><i data-lucide="user-plus" style="color:var(--accent)"></i></span> 创建用户</h3>
+        <div class="form-group"><label>姓名</label><input id="u-name" placeholder="张三"></div>
+        <div class="form-group"><label>邮箱</label><input id="u-email" placeholder="zhangsan@example.com"></div>
+        <div class="form-group"><label>电话</label><input id="u-phone" placeholder="13800138000"></div>
+        <div class="form-group"><label>角色</label>
+          <select id="u-role">
+            <option value="admin">管理员</option>
+            <option value="partner">合伙人</option>
+            <option value="accountant">会计</option>
+            <option value="cashier">出纳</option>
+            <option value="developer">开发商</option>
+            <option value="supplier">供应商</option>
+            <option value="auditor">审计</option>
+            <option value="friend">朋友</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="createUser()"><i data-lucide="plus"></i>创建用户</button>
+      </div>
+      <div class="card">
+        <h3><span class="icon" style="background:rgba(42,157,143,0.1)"><i data-lucide="settings" style="color:var(--teal)"></i></span> 角色权限管理</h3>
+        <div class="form-group"><label>用户ID</label><input id="ur-uid" placeholder="user-1"></div>
+        <div class="form-group"><label>新角色</label>
+          <select id="ur-role">
+            <option value="admin">管理员</option>
+            <option value="partner">合伙人</option>
+            <option value="accountant">会计</option>
+            <option value="cashier">出纳</option>
+            <option value="developer">开发商</option>
+            <option value="supplier">供应商</option>
+            <option value="auditor">审计</option>
+            <option value="friend">朋友</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:0.5rem">
+          <button class="btn btn-teal" onclick="changeUserRole()"><i data-lucide="shuffle"></i>变更角色</button>
+          <button class="btn btn-secondary" onclick="viewPermissions()"><i data-lucide="eye"></i>查看权限</button>
+        </div>
+        <div id="perm-result" style="margin-top:1rem"></div>
+      </div>
+      <div class="card">
+        <h3><span class="icon" style="background:rgba(244,162,97,0.1)"><i data-lucide="user-cog" style="color:var(--gold)"></i></span> 用户状态管理</h3>
+        <div class="form-group"><label>用户ID</label><input id="us-uid" placeholder="user-1"></div>
+        <div style="display:flex;gap:0.5rem">
+          <button class="btn btn-primary" onclick="activateUser()"><i data-lucide="user-check"></i>激活</button>
+          <button class="btn btn-secondary" onclick="deactivateUser()"><i data-lucide="user-x"></i>停用</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:1.25rem">
+      <h3><span class="icon" style="background:rgba(26,26,46,0.08)"><i data-lucide="users" style="color:var(--ink)"></i></span> 用户列表</h3>
+      <div style="display:flex;gap:0.5rem;margin-bottom:1rem;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="loadUsers()"><i data-lucide="refresh-cw"></i>刷新</button>
+        <select id="ul-role" onchange="loadUsers()">
+          <option value="">全部角色</option>
+          <option value="admin">管理员</option>
+          <option value="partner">合伙人</option>
+          <option value="accountant">会计</option>
+          <option value="cashier">出纳</option>
+          <option value="developer">开发商</option>
+          <option value="supplier">供应商</option>
+          <option value="auditor">审计</option>
+          <option value="friend">朋友</option>
+        </select>
+        <button class="btn btn-gold" onclick="loadUserStats()"><i data-lucide="bar-chart-2"></i>角色统计</button>
+      </div>
+      <div id="user-list"></div>
+      <div id="user-stats" style="margin-top:1rem"></div>
+    </div>
+    <div class="card" style="margin-top:1.25rem">
+      <h3><span class="icon" style="background:rgba(108,92,231,0.1)"><i data-lucide="shield" style="color:#6c5ce7"></i></span> 权限矩阵</h3>
+      <button class="btn btn-secondary" onclick="loadRoleMatrix()" style="margin-bottom:1rem"><i data-lucide="grid-3x3"></i>加载权限矩阵</button>
+      <div id="role-matrix"></div>
+    </div>
+  </div>
+
+  <!-- Excel -->
+  <div id="excel" class="tab-content">
+    <div class="grid">
+      <div class="card">
+        <h3><span class="icon" style="background:rgba(42,157,143,0.1)"><i data-lucide="file-up" style="color:var(--teal)"></i></span> 导入交易（JSON格式）</h3>
+        <div class="form-group"><label>项目ID</label><input id="im-pid" placeholder="project-1"></div>
+        <div class="form-group"><label>数据</label>
+          <textarea id="im-data" rows="6">[
+  {"type":"income","amount":5000,"date":"2024-01-15","description":"客户A付款","category":"service"},
+  {"type":"expense","amount":1200,"date":"2024-01-20","description":"材料费","category":"material"}
+]</textarea>
+        </div>
+        <button class="btn btn-primary" onclick="importData()"><i data-lucide="upload"></i>导入</button>
+        <div id="import-result" style="margin-top:1rem"></div>
+      </div>
+      <div class="card">
+        <h3><span class="icon" style="background:rgba(233,69,96,0.1)"><i data-lucide="file-down" style="color:var(--accent)"></i></span> 导出报表</h3>
+        <div class="form-group"><label>项目ID</label><input id="ex-pid" placeholder="project-1"></div>
+        <button class="btn btn-teal" onclick="exportData()"><i data-lucide="download"></i>导出</button>
+        <div id="export-result" style="margin-top:1rem"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="alert-box"></div>
+</div>
+
+<!-- Help Button -->
+<button class="help-btn" onclick="toggleHelp()" title="使用说明"><i data-lucide="help-circle"></i></button>
+
+<!-- Help Overlay -->
+<div class="help-overlay" id="helpOverlay" onclick="if(event.target===this)toggleHelp()">
+  <div class="help-panel">
+    <div class="help-header">
+      <h2><i data-lucide="book-open"></i>使用说明</h2>
+      <button class="help-close" onclick="toggleHelp()"><i data-lucide="x"></i></button>
+    </div>
+    <div class="help-body">
+
+      <div class="help-section">
+        <h3><i data-lucide="log-in"></i>系统登录</h3>
+        <div class="help-step">
+          <div class="help-step-num">1</div>
+          <p>使用账号密码登录系统，当前支持两个测试账号：<br><strong>管理员</strong> <code>admin / admin123</code> &nbsp;|&nbsp; <strong>普通用户</strong> <code>user / user123</code></p>
+        </div>
+        <div class="help-step">
+          <div class="help-step-num">2</div>
+          <p>登录后可在页面底部版本栏查看当前版本、更新记录，或点击 <strong>退出登录</strong> 切换账号</p>
+        </div>
+        <div class="help-tip">
+          <i data-lucide="alert-triangle"></i>
+          <span>当前为测试阶段，登录框旁的账号密码提示后续开发完成后将移除。系统使用 sessionStorage 保持登录状态，关闭浏览器标签页后需重新登录。</span>
+        </div>
+      </div>
+
+      <div class="help-section">
+        <h3><i data-lucide="rocket"></i>快速开始</h3>
+        <div class="help-step">
+          <div class="help-step-num">1</div>
+          <p>在 <strong>项目管理</strong> 中创建一个项目，填写项目名称和描述</p>
+        </div>
+        <div class="help-step">
+          <div class="help-step-num">2</div>
+          <p>添加项目成员，设置各自的 <strong>角色</strong> 和 <strong>分成比例</strong></p>
+        </div>
+        <div class="help-step">
+          <div class="help-step-num">3</div>
+          <p>在 <strong>收支记录</strong> 中录入每笔收入和支出，选择类型、填写金额和日期</p>
+        </div>
+        <div class="help-step">
+          <div class="help-step-num">4</div>
+          <p>在 <strong>利润计算</strong> 中查看自动计算的利润和合伙人分配方案</p>
+        </div>
+        <div class="help-step">
+          <div class="help-step-num">5</div>
+          <p>在 <strong>报表中心</strong> 生成月度/年度财务报表和趋势分析图表</p>
+        </div>
+      </div>
+
+      <div class="help-section">
+        <h3><i data-lucide="layout-grid"></i>功能模块说明</h3>
+        <div class="help-step">
+          <div class="help-step-num" style="background:var(--teal)"><i data-lucide="folder-kanban" style="width:14px;height:14px;color:#fff"></i></div>
+          <p><strong>项目管理</strong> — 创建项目、添加成员、设置分成比例（比例总和需为 1.0）</p>
+        </div>
+        <div class="help-step">
+          <div class="help-step-num" style="background:var(--accent)"><i data-lucide="arrow-left-right" style="width:14px;height:14px;color:#fff"></i></div>
+          <p><strong>收支记录</strong> — 录入收入/支出、按日期范围查询和统计</p>
+        </div>
+        <div class="help-step">
+          <div class="help-step-num" style="background:var(--gold)"><i data-lucide="trending-up" style="width:14px;height:14px;color:#fff"></i></div>
+          <p><strong>利润计算</strong> — 自动计算净利润、按比例分配，支持情景模拟</p>
+        </div>
+        <div class="help-step">
+          <div class="help-step-num" style="background:#6c5ce7"><i data-lucide="truck" style="width:14px;height:14px;color:#fff"></i></div>
+          <p><strong>供应商对账</strong> — 添加供应商、记录付款、自动对账检测差异</p>
+        </div>
+        <div class="help-step">
+          <div class="help-step-num" style="background:#00b894"><i data-lucide="file-text" style="width:14px;height:14px;color:#fff"></i></div>
+          <p><strong>发票管理</strong> — 上传发票（模拟OCR自动识别金额）、查看发票列表</p>
+        </div>
+        <div class="help-step">
+          <div class="help-step-num" style="background:#0984e3"><i data-lucide="bar-chart-3" style="width:14px;height:14px;color:#fff"></i></div>
+          <p><strong>报表中心</strong> — 月度/年度收支对比图表、利润走势、分类占比、趋势分析</p>
+        </div>
+        <div class="help-step">
+          <div class="help-step-num" style="background:var(--ink)"><i data-lucide="shield-check" style="width:14px;height:14px;color:#fff"></i></div>
+          <p><strong>用户管理</strong> — 创建用户、分配角色、权限管理、查看权限矩阵</p>
+        </div>
+        <div class="help-step">
+          <div class="help-step-num" style="background:#e17055"><i data-lucide="file-spreadsheet" style="width:14px;height:14px;color:#fff"></i></div>
+          <p><strong>导入导出</strong> — 批量导入交易数据（JSON格式）、导出完整报表</p>
+        </div>
+      </div>
+
+      <div class="help-section">
+        <h3><i data-lucide="shield"></i>用户角色说明</h3>
+        <div class="help-role-grid">
+          <div class="help-role-card">
+            <h4><i data-lucide="crown" style="color:var(--accent)"></i>管理员</h4>
+            <p>拥有全部权限，可管理项目、用户、供应商、发票及所有财务操作</p>
+          </div>
+          <div class="help-role-card">
+            <h4><i data-lucide="handshake" style="color:#d63031"></i>合伙人</h4>
+            <p>可管理项目、成员、交易、利润和报表，适合有资金投入的核心合伙人</p>
+          </div>
+          <div class="help-role-card">
+            <h4><i data-lucide="calculator" style="color:var(--teal)"></i>会计</h4>
+            <p>可记录交易、查看利润、管理发票、导入导出数据和查看报表</p>
+          </div>
+          <div class="help-role-card">
+            <h4><i data-lucide="wallet" style="color:var(--gold)"></i>出纳</h4>
+            <p>可记录交易、查看供应商信息、进行付款操作和查看发票</p>
+          </div>
+          <div class="help-role-card">
+            <h4><i data-lucide="code" style="color:#6c5ce7"></i>开发商</h4>
+            <p>可创建和编辑项目、记录交易、查看利润和报表</p>
+          </div>
+          <div class="help-role-card">
+            <h4><i data-lucide="building-2" style="color:#00b894"></i>供应商</h4>
+            <p>仅可查看供应商信息和相关发票，权限最受限</p>
+          </div>
+          <div class="help-role-card">
+            <h4><i data-lucide="search" style="color:#fdcb6e"></i>审计</h4>
+            <p>可只读查看全部财务数据，适合第三方审计人员监督项目财务</p>
+          </div>
+          <div class="help-role-card">
+            <h4><i data-lucide="heart" style="color:#0984e3"></i>朋友</h4>
+            <p>可查看项目概况、利润分配和报表，适合只读了解项目财务状况</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="help-section">
+        <h3><i data-lucide="lightbulb"></i>使用技巧</h3>
+        <div class="help-tip">
+          <i data-lucide="info"></i>
+          <span>分成比例设置时，所有成员的比例之和必须等于 <strong>1.0</strong>（即 100%），否则会报错。</span>
+        </div>
+        <div class="help-tip">
+          <i data-lucide="info"></i>
+          <span>在报表中心选择年份和维度后，点击 <strong>生成报表</strong> 查看月度数据，点击 <strong>趋势分析</strong> 查看年度对比和累计利润走势。</span>
+        </div>
+        <div class="help-tip">
+          <i data-lucide="info"></i>
+          <span>导入数据时使用 JSON 格式数组，每条记录包含 <code>type</code>、<code>amount</code>、<code>date</code>、<code>description</code>、<code>category</code> 字段。</span>
+        </div>
+        <div class="help-tip">
+          <i data-lucide="info"></i>
+          <span>用户管理中的权限矩阵可以直观查看每个角色拥有的具体权限，点击 <strong>加载权限矩阵</strong> 即可查看。</span>
+        </div>
+        <div class="help-tip">
+          <i data-lucide="info"></i>
+          <span>本系统使用内存存储，重启服务后数据会清空。可通过导入导出功能备份和恢复数据。</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const API = '';
+function switchTab(name, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.getElementById(name).classList.add('active');
+  lucide.createIcons();
+}
+function alertBox(msg, type='success') {
+  const box = document.getElementById('alert-box');
+  const icon = type === 'success' ? 'check-circle' : 'alert-circle';
+  box.innerHTML = `<div class="alert ${type}"><i data-lucide="${icon}"></i>${msg}</div>`;
+  lucide.createIcons();
+  setTimeout(() => box.innerHTML = '', 4000);
+}
+async function post(path, body) {
+  const r = await fetch(API + path, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  const data = await r.json();
+  if (!r.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+async function get(path) {
+  const r = await fetch(API + path);
+  const data = await r.json();
+  if (!r.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+
+async function createProject() {
+  try {
+    const p = await post('/api/projects', { name: document.getElementById('p-name').value, description: document.getElementById('p-desc').value, createdBy: document.getElementById('p-user').value });
+    alertBox('项目创建成功: ' + p.id);
+    loadProjects();
+  } catch(e) { alertBox(e.message, 'error'); }
+}
+async function addMember() {
+  try {
+    await post('/api/projects/' + document.getElementById('m-pid').value + '/members', { userId: document.getElementById('m-uid').value, role: document.getElementById('m-role').value, ratio: parseFloat(document.getElementById('m-ratio').value) });
+    alertBox('成员添加成功');
+  } catch(e) { alertBox(e.message, 'error'); }
+}
+async function setRatios() {
+  try {
+    await post('/api/projects/' + document.getElementById('r-pid').value + '/ratios', JSON.parse(document.getElementById('r-json').value));
+    alertBox('比例设置成功');
+  } catch(e) { alertBox(e.message, 'error'); }
+}
+async function loadProjects() {
+  try {
+    const list = await get('/api/projects');
+    if (list.length === 0) {
+      document.getElementById('project-list').innerHTML = '<p style="color:var(--text-muted)">暂无项目</p>';
+      return;
+    }
+    let html = '<div class="table-wrap"><table><tr><th>ID</th><th>名称</th><th>描述</th><th>成员数</th><th>创建时间</th></tr>';
+    for (const p of list) {
+      html += `<tr><td>${p.id}</td><td><strong>${p.name}</strong></td><td>${p.description}</td><td>${p.members.length}</td><td>${new Date(p.createdAt).toLocaleDateString('zh-CN')}</td></tr>`;
+    }
+    html += '</table></div>';
+    document.getElementById('project-list').innerHTML = html;
+  } catch(e) { alertBox(e.message, 'error'); }
+}
+
+async function recordTx() {
+  try {
+    await post('/api/projects/' + document.getElementById('t-pid').value + '/transactions', {
+      type: document.getElementById('t-type').value,
+      amount: parseFloat(document.getElementById('t-amount').value),
+      date: document.getElementById('t-date').value,
+      description: document.getElementById('t-desc').value,
+      category: document.getElementById('t-cat').value,
+      recordedBy: document.getElementById('t-user').value
+    });
+    alertBox('交易记录成功');
+  } catch(e) { alertBox(e.message, 'error'); }
+}
+async function queryTotals() {
+  try {
+    const pid = document.getElementById('q-pid').value;
+    const from = document.getElementById('q-from').value;
+    const to = document.getElementById('q-to').value;
+    const stats = await get(`/api/projects/${pid}/totals?from=${from}&to=${to}`);
+    document.getElementById('tx-stats').innerHTML = `
+      <div class="stats-row">
+        <div class="stat-card income"><div class="stat-icon"><i data-lucide="trending-up"></i></div><div class="value">${stats.income.toLocaleString()}</div><div class="label">总收入</div></div>
+        <div class="stat-card expense"><div class="stat-icon"><i data-lucide="trending-down"></i></div><div class="value">${stats.expense.toLocaleString()}</div><div class="label">总支出</div></div>
+        <div class="stat-card net"><div class="stat-icon"><i data-lucide="equal"></i></div><div class="value">${stats.net.toLocaleString()}</div><div class="label">净额</div></div>
+      </div>`;
+    lucide.createIcons();
+  } catch(e) { alertBox(e.message, 'error'); }
+}
+async function queryTxs() {
+  try {
+    const pid = document.getElementById('q-pid').value;
+    const txs = await get('/api/projects/' + pid + '/transactions');
+    if (txs.length === 0) {
+      document.getElementById('tx-list').innerHTML = '<p style="color:var(--text-muted)">暂无交易记录</p>';
+      return;
+    }
+    let html = '<div class="table-wrap"><table><tr><th>类型</th><th>金额</th><th>日期</th><th>描述</th><th>分类</th></tr>';
+    for (const t of txs) {
+      const icon = t.type === 'income' ? 'arrow-up-right' : 'arrow-down-right';
+      html += `<tr><td><span class="badge ${t.type}"><i data-lucide="${icon}"></i>${t.type === 'income' ? '收入' : '支出'}</span></td><td><strong>${t.amount.toLocaleString()}</strong></td><td>${t.date.split('T')[0]}</td><td>${t.description}</td><td>${t.category}</td></tr>`;
+    }
+    html += '</table></div>';
+    document.getElementById('tx-list').innerHTML = html;
+    lucide.createIcons();
+  } catch(e) { alertBox(e.message, 'error'); }
+}
+
+async function calcProfit() {
+  try {
+    const result = await get('/api/projects/' + document.getElementById('pr-pid').value + '/profit');
+    const distHtml = result.distribution.map(d =>
+      `<div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid var(--border)">
+        <span>${d.userId} (${(d.ratio * 100).toFixed(0)}%)</span>
+        <strong style="color:${d.share >= 0 ? 'var(--teal)' : 'var(--accent)'}">${d.share.toLocaleString()}</strong>
+      </div>`
+    ).join('');
+    document.getElementById('profit-result').innerHTML = `
+      <div class="stats-row">
+        <div class="stat-card income"><div class="stat-icon"><i data-lucide="trending-up"></i></div><div class="value">${result.totalIncome.toLocaleString()}</div><div class="label">总收入</div></div>
+        <div class="stat-card expense"><div class="stat-icon"><i data-lucide="trending-down"></i></div><div class="value">${result.totalExpense.toLocaleString()}</div><div class="label">总支出</div></div>
+        <div class="stat-card net"><div class="stat-icon"><i data-lucide="equal"></i></div><div class="value">${result.netProfit.toLocaleString()}</div><div class="label">净利润</div></div>
+      </div>
+      <div style="margin-top:1rem"><strong>合伙人分配：</strong></div>
+      ${distHtml}`;
+    lucide.createIcons();
+  } catch(e) { alertBox(e.message, 'error'); }
+}
+async function simulateProfit() {
+  try {
+    const result = await post('/api/projects/' + document.getElementById('sim-pid').value + '/profit/simulate', {
+      additionalIncome: parseFloat(document.getElementById('sim-inc').value),
+      additionalExpense: parseFloat(document.getElementById('sim-exp').value)
+    });
+    document.getElementById('sim-result').innerHTML = `
+      <div class="stats-row">
+        <div class="stat-card net"><div class="stat-icon"><i data-lucide="flask-conical"></i></div><div class="value">${result.simulatedNet.toLocaleString()}</div><div class="label">模拟净利润</div></div>
+      </div>
+      <pre>${JSON.stringify(result.simulatedDistribution, null, 2)}</pre>`;
+    lucide.createIcons();
+  } catch(e) { alertBox(e.message, 'error'); }
+}
+
+async function addSupplier() {
+  try {
+    await post('/api/projects/' + document.getElementById('s-pid').value + '/suppliers', { name: document.getElementById('s-name').value, contact: document.getElementById('s-contact').value });
+    alertBox('供应商添加成功');
+  } catch(e) { alertBox(e.message, 'error'); }
+}
+async function recordPayment() {
+  try {
+    await post('/api/suppliers/' + document.getElementById('pay-sid').value + '/payments', {
+      amount: parseFloat(document.getElementById('pay-amount').value),
+      status: document.getElementById('pay-status').value,
+      dueDate: document.getElementById('pay-due').value
+    });
+    alertBox('付款记录成功');
+  } catch(e) { alertBox(e.message, 'error'); }
+}
+async function reconcile() {
+  try {
+    const result = await get('/api/suppliers/' + document.getElementById('rec-sid').value + '/reconcile');
+    const discHtml = result.discrepancies.length > 0
+      ? result.discrepancies.map(d => `<div style="color:var(--accent);padding:0.25rem 0"><i data-lucide="alert-triangle" style="width:14px;height:14px;display:inline;vertical-align:middle"></i> ${d.issue} (金额: ${d.amount})</div>`).join('')
+      : '<div style="color:var(--teal)"><i data-lucide="check-circle" style="width:14px;height:14px;display:inline;vertical-align:middle"></i> 无差异</div>';
+    document.getElementById('reconcile-result').innerHTML = `
+      <div class="stats-row">
+        <div class="stat-card income"><div class="stat-icon"><i data-lucide="check"></i></div><div class="value">${result.totalPaid.toLocaleString()}</div><div class="label">已付</div></div>
+        <div class="stat-card expense"><div class="stat-icon"><i data-lucide="clock"></i></div><div class="value">${result.totalPending.toLocaleString()}</div><div class="label">待付</div></div>
+        <div class="stat-card net"><div class="stat-icon"><i data-lucide="alert-circle"></i></div><div class="value">${result.totalOverdue.toLocaleString()}</div><div class="label">逾期</div></div>
+      </div>
+      <div style="margin-top:1rem"><strong>差异检测：</strong></div>
+      ${discHtml}`;
+    lucide.createIcons();
+  } catch(e) { alertBox(e.message, 'error'); }
+}
+
+async function uploadInvoice() {
+  try {
+    const result = await post('/api/projects/' + document.getElementById('i-pid').value + '/invoices', { fileName: document.getElementById('i-file').value });
+    alertBox(`发票上传成功，OCR识别金额: ${result.amount}`);
+  } catch(e) { alertBox(e.message, 'error'); }
+}
+async function listInvoices() {
+  try {
+    const list = await get('/api/projects/' + document.getElementById('il-pid').value + '/invoices');
+    if (list.length === 0) {
+      document.getElementById('invoice-list').innerHTML = '<p style="color:var(--text-muted)">暂无发票</p>';
+      return;
+    }
+    let html = '<div class="table-wrap"><table><tr><th>发票号</th><th>金额</th><th>日期</th><th>文件名</th></tr>';
+    for (const i of list) {
+      html += `<tr><td>${i.invoiceNumber}</td><td><strong>${i.amount.toLocaleString()}</strong></td><td>${i.date}</td><td>${i.fileName}</td></tr>`;
+    }
+    html += '</table></div>';
+    document.getElementById('invoice-list').innerHTML = html;
+  } catch(e) { alertBox(e.message, 'error'); }
+}
+
+/* ===== Canvas Chart Drawing Utilities ===== */
+function drawBarChart(canvasId, labels, datasets, options = {}) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const w = rect.width - 48;
+  const h = options.height || 280;
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  canvas.style.width = w + 'px';
+  canvas.style.height = h + 'px';
+  ctx.scale(dpr, dpr);
+
+  const pad = { top: 30, right: 20, bottom: 50, left: 60 };
+  const cw = w - pad.left - pad.right;
+  const ch = h - pad.top - pad.bottom;
+
+  // Find max value
+  let maxVal = 0;
+  datasets.forEach(ds => ds.data.forEach(v => { if (v > maxVal) maxVal = v; }));
+  maxVal = Math.max(maxVal, 1) * 1.15;
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(26,26,46,0.06)';
+  ctx.lineWidth = 1;
+  const gridLines = 5;
+  for (let i = 0; i <= gridLines; i++) {
+    const y = pad.top + (ch / gridLines) * i;
+    ctx.beginPath();
+    ctx.moveTo(pad.left, y);
+    ctx.lineTo(w - pad.right, y);
+    ctx.stroke();
+    // Y labels
+    ctx.fillStyle = '#8a8aaa';
+    ctx.font = '11px "Noto Sans SC", sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(Math.round(maxVal - (maxVal / gridLines) * i).toLocaleString(), pad.left - 10, y + 4);
+  }
+
+  const groupWidth = cw / labels.length;
+  const barWidth = Math.min(groupWidth * 0.6 / datasets.length, 30);
+  const groupGap = groupWidth * 0.4;
+
+  datasets.forEach((ds, di) => {
+    ds.data.forEach((val, i) => {
+      const x = pad.left + groupWidth * i + groupGap / 2 + (barWidth + 2) * di;
+      const barH = (val / maxVal) * ch;
+      const y = pad.top + ch - barH;
+
+      // Bar with rounded top
+      const r = Math.min(4, barWidth / 2);
+      ctx.fillStyle = ds.color;
+      ctx.beginPath();
+      ctx.moveTo(x, y + r);
+      ctx.arcTo(x, y, x + barWidth, y, r);
+      ctx.arcTo(x + barWidth, y, x + barWidth, y + barH, r);
+      ctx.lineTo(x + barWidth, pad.top + ch);
+      ctx.lineTo(x, pad.top + ch);
+      ctx.closePath();
+      ctx.fill();
+
+      // Value on top
+      if (val > 0) {
+        ctx.fillStyle = ds.color;
+        ctx.font = 'bold 10px "Noto Sans SC", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(val.toLocaleString(), x + barWidth / 2, y - 6);
+      }
+    });
+  });
+
+  // X labels
+  ctx.fillStyle = '#8a8aaa';
+  ctx.font = '11px "Noto Sans SC", sans-serif';
+  ctx.textAlign = 'center';
+  labels.forEach((label, i) => {
+    const x = pad.left + groupWidth * i + groupWidth / 2;
+    ctx.fillText(label, x, h - pad.bottom + 20);
+  });
+}
+
+function drawLineChart(canvasId, labels, datasets, options = {}) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const w = rect.width - 48;
+  const h = options.height || 280;
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  canvas.style.width = w + 'px';
+  canvas.style.height = h + 'px';
+  ctx.scale(dpr, dpr);
+
+  const pad = { top: 30, right: 20, bottom: 50, left: 60 };
+  const cw = w - pad.left - pad.right;
+  const ch = h - pad.top - pad.bottom;
+
+  let maxVal = 0, minVal = 0;
+  datasets.forEach(ds => ds.data.forEach(v => { if (v > maxVal) maxVal = v; if (v < minVal) minVal = v; }));
+  const range = Math.max(maxVal - minVal, 1) * 1.2;
+  const zeroY = pad.top + ch * (maxVal / range);
+
+  // Grid
+  ctx.strokeStyle = 'rgba(26,26,46,0.06)';
+  ctx.lineWidth = 1;
+  const gridLines = 5;
+  for (let i = 0; i <= gridLines; i++) {
+    const y = pad.top + (ch / gridLines) * i;
+    ctx.beginPath();
+    ctx.moveTo(pad.left, y);
+    ctx.lineTo(w - pad.right, y);
+    ctx.stroke();
+    ctx.fillStyle = '#8a8aaa';
+    ctx.font = '11px "Noto Sans SC", sans-serif';
+    ctx.textAlign = 'right';
+    const val = maxVal - (range / gridLines) * i;
+    ctx.fillText(Math.round(val).toLocaleString(), pad.left - 10, y + 4);
+  }
+
+  // Zero line
+  if (minVal < 0) {
+    ctx.strokeStyle = 'rgba(26,26,46,0.15)';
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(pad.left, zeroY);
+    ctx.lineTo(w - pad.right, zeroY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  const stepX = cw / (labels.length - 1 || 1);
+
+  datasets.forEach(ds => {
+    // Area fill
+    ctx.beginPath();
+    ds.data.forEach((val, i) => {
+      const x = pad.left + stepX * i;
+      const y = pad.top + ch * ((maxVal - val) / range);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.lineTo(pad.left + stepX * (ds.data.length - 1), pad.top + ch);
+    ctx.lineTo(pad.left, pad.top + ch);
+    ctx.closePath();
+    const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + ch);
+    grad.addColorStop(0, ds.fillColor || 'rgba(42,157,143,0.15)');
+    grad.addColorStop(1, 'rgba(42,157,143,0)');
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Line
+    ctx.beginPath();
+    ctx.strokeStyle = ds.color;
+    ctx.lineWidth = 2.5;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ds.data.forEach((val, i) => {
+      const x = pad.left + stepX * i;
+      const y = pad.top + ch * ((maxVal - val) / range);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+
+    // Dots
+    ds.data.forEach((val, i) => {
+      const x = pad.left + stepX * i;
+      const y = pad.top + ch * ((maxVal - val) / range);
+      ctx.beginPath();
+      ctx.arc(x, y, 4, 0, Math.PI * 2);
+      ctx.fillStyle = '#fff';
+      ctx.fill();
+      ctx.strokeStyle = ds.color;
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+    });
+  });
+
+  // X labels
+  ctx.fillStyle = '#8a8aaa';
+  ctx.font = '11px "Noto Sans SC", sans-serif';
+  ctx.textAlign = 'center';
+  labels.forEach((label, i) => {
+    const x = pad.left + stepX * i;
+    ctx.fillText(label, x, h - pad.bottom + 20);
+  });
+}
+
+function drawDonutChart(canvasId, data, options = {}) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const size = options.size || 200;
+  canvas.width = size * dpr;
+  canvas.height = size * dpr;
+  canvas.style.width = size + 'px';
+  canvas.style.height = size + 'px';
+  ctx.scale(dpr, dpr);
+
+  const cx = size / 2, cy = size / 2;
+  const outerR = size / 2 - 10;
+  const innerR = outerR * 0.6;
+  const total = data.reduce((s, d) => s + d.value, 0) || 1;
+  let angle = -Math.PI / 2;
+
+  data.forEach(d => {
+    const slice = (d.value / total) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.arc(cx, cy, outerR, angle, angle + slice);
+    ctx.arc(cx, cy, innerR, angle + slice, angle, true);
+    ctx.closePath();
+    ctx.fillStyle = d.color;
+    ctx.fill();
+    angle += slice;
+  });
+
+  // Center text
+  ctx.fillStyle = '#1a1a2e';
+  ctx.font = 'bold 18px "Noto Serif SC", serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(total.toLocaleString(), cx, cy + 2);
+  ctx.fillStyle = '#8a8aaa';
+  ctx.font = '11px "Noto Sans SC", sans-serif';
+  ctx.fillText(options.centerLabel || '总计', cx, cy + 18);
+}
+
+/* ===== Report Generation ===== */
+async function generateReport() {
+  try {
+    const pid = document.getElementById('rep-pid').value;
+    const year = document.getElementById('rep-year').value;
+    const dimension = document.getElementById('rep-dimension').value;
+
+    const [profit, exportData] = await Promise.all([
+      get(`/api/projects/${pid}/profit`),
+      get(`/api/projects/${pid}/export`)
+    ]);
+
+    const txs = exportData.transactions;
+
+    // Group by month
+    const monthLabels = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+    const monthlyIncome = new Array(12).fill(0);
+    const monthlyExpense = new Array(12).fill(0);
+    const monthlyProfit = new Array(12).fill(0);
+
+    txs.forEach(t => {
+      const d = t.date.split('T')[0];
+      const m = parseInt(d.split('-')[1]) - 1;
+      if (t.type === 'income') monthlyIncome[m] += t.amount;
+      else monthlyExpense[m] += t.amount;
+    });
+    for (let i = 0; i < 12; i++) monthlyProfit[i] = monthlyIncome[i] - monthlyExpense[i];
+
+    // Category breakdown
+    const catMap = {};
+    txs.forEach(t => {
+      if (!catMap[t.category]) catMap[t.category] = { income: 0, expense: 0 };
+      catMap[t.category][t.type] += t.amount;
+    });
+
+    // Yearly summary
+    const yearlyIncome = monthlyIncome.reduce((a,b) => a+b, 0);
+    const yearlyExpense = monthlyExpense.reduce((a,b) => a+b, 0);
+    const yearlyProfit = yearlyIncome - yearlyExpense;
+    const profitRate = yearlyIncome > 0 ? ((yearlyProfit / yearlyIncome) * 100).toFixed(1) : '0.0';
+
+    // Best/worst month
+    let bestMonth = 0, bestVal = -Infinity, worstMonth = 0, worstVal = Infinity;
+    monthlyProfit.forEach((v, i) => {
+      if (v > bestVal) { bestVal = v; bestMonth = i; }
+      if (v < worstVal) { worstVal = v; worstMonth = i; }
+    });
+
+    const catColors = ['#e94560','#2a9d8f','#f4a261','#6c5ce7','#00b894','#fd79a8','#0984e3','#e17055'];
+    const catEntries = Object.entries(catMap);
+
+    document.getElementById('report-content').innerHTML = `
+      <!-- Yearly Overview -->
+      <div class="report-section">
+        <h3><i data-lucide="calendar"></i>${year} 年度财务概览</h3>
+        <div class="stats-row">
+          <div class="stat-card income"><div class="stat-icon"><i data-lucide="trending-up"></i></div><div class="value">${yearlyIncome.toLocaleString()}</div><div class="label">年度总收入</div></div>
+          <div class="stat-card expense"><div class="stat-icon"><i data-lucide="trending-down"></i></div><div class="value">${yearlyExpense.toLocaleString()}</div><div class="label">年度总支出</div></div>
+          <div class="stat-card net"><div class="stat-icon"><i data-lucide="coins"></i></div><div class="value">${yearlyProfit.toLocaleString()}</div><div class="label">年度净利润</div></div>
+          <div class="stat-card count"><div class="stat-icon"><i data-lucide="percent"></i></div><div class="value">${profitRate}%</div><div class="label">利润率</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem">
+          <div style="background:var(--cream);padding:1rem;border-radius:var(--radius-sm);text-align:center">
+            <div style="font-size:0.8rem;color:var(--text-muted)">最佳月份</div>
+            <div style="font-family:'Noto Serif SC';font-size:1.25rem;font-weight:700;color:var(--teal)">${monthLabels[bestMonth]}</div>
+            <div style="font-size:0.85rem;color:var(--teal)">+${bestVal.toLocaleString()}</div>
+          </div>
+          <div style="background:var(--cream);padding:1rem;border-radius:var(--radius-sm);text-align:center">
+            <div style="font-size:0.8rem;color:var(--text-muted)">最差月份</div>
+            <div style="font-family:'Noto Serif SC';font-size:1.25rem;font-weight:700;color:var(--accent)">${monthLabels[worstMonth]}</div>
+            <div style="font-size:0.85rem;color:var(--accent)">${worstVal.toLocaleString()}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Monthly Bar Chart -->
+      <div class="report-section">
+        <h3><i data-lucide="bar-chart-3"></i>月度收支对比</h3>
+        <div class="chart-canvas-wrap">
+          <canvas id="monthlyBarChart"></canvas>
+          <div class="chart-legend">
+            <div class="chart-legend-item"><div class="chart-legend-dot" style="background:#2a9d8f"></div>收入</div>
+            <div class="chart-legend-item"><div class="chart-legend-dot" style="background:#e94560"></div>支出</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Monthly Profit Line Chart -->
+      <div class="report-section">
+        <h3><i data-lucide="trending-up"></i>月度利润走势</h3>
+        <div class="chart-canvas-wrap">
+          <canvas id="monthlyProfitLine"></canvas>
+          <div class="chart-legend">
+            <div class="chart-legend-item"><div class="chart-legend-dot" style="background:#f4a261"></div>净利润</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category Donut -->
+      ${catEntries.length > 0 ? `
+      <div class="report-section">
+        <h3><i data-lucide="pie-chart"></i>分类占比</h3>
+        <div style="display:flex;gap:2rem;flex-wrap:wrap;align-items:center;justify-content:center">
+          <div class="chart-canvas-wrap" style="flex-shrink:0">
+            <canvas id="categoryDonut"></canvas>
+          </div>
+          <div style="flex:1;min-width:200px">
+            ${catEntries.map(([cat, vals], i) => `
+              <div style="display:flex;align-items:center;gap:0.6rem;padding:0.5rem 0;border-bottom:1px solid var(--border)">
+                <div style="width:12px;height:12px;border-radius:3px;background:${catColors[i % catColors.length]};flex-shrink:0"></div>
+                <span style="flex:1;font-size:0.9rem">${cat}</span>
+                <span style="color:var(--teal);font-weight:600;font-size:0.85rem">${vals.income.toLocaleString()}</span>
+                <span style="color:var(--accent);font-weight:600;font-size:0.85rem">${vals.expense.toLocaleString()}</span>
+              </div>
+            `).join('')}
+            <div style="display:flex;gap:1rem;margin-top:0.5rem;font-size:0.75rem;color:var(--text-muted)">
+              <span>收入</span><span>支出</span>
+            </div>
+          </div>
+        </div>
+      </div>` : ''}
+
+      <!-- Profit Distribution -->
+      <div class="report-section">
+        <h3><i data-lucide="users"></i>合伙人利润分配</h3>
+        <div class="table-wrap">
+          <table>
+            <tr><th>合伙人</th><th>比例</th><th>分配金额</th><th>状态</th></tr>
+            ${profit.distribution.map(d => `
+              <tr>
+                <td><i data-lucide="user" style="width:14px;height:14px;display:inline;vertical-align:middle;margin-right:0.3rem"></i>${d.userId}</td>
+                <td>${(d.ratio * 100).toFixed(0)}%</td>
+                <td style="color:${d.share >= 0 ? 'var(--teal)' : 'var(--accent)'};font-weight:600">${d.share.toLocaleString()}</td>
+                <td><span class="badge ${d.share >= 0 ? 'income' : 'expense'}">${d.share >= 0 ? '盈利' : '亏损'}</span></td>
+              </tr>
+            `).join('')}
+          </table>
+        </div>
+      </div>
+
+      <!-- Supplier Overview -->
+      ${exportData.suppliers.length > 0 ? `
+      <div class="report-section">
+        <h3><i data-lucide="truck"></i>供应商概况</h3>
+        <div class="table-wrap">
+          <table>
+            <tr><th>供应商</th><th>联系方式</th><th>付款笔数</th><th>总金额</th></tr>
+            ${exportData.suppliers.map(s => {
+              const total = s.payments.reduce((a, p) => a + p.amount, 0);
+              return `<tr><td><i data-lucide="building-2" style="width:14px;height:14px;display:inline;vertical-align:middle;margin-right:0.3rem"></i>${s.name}</td><td>${s.contact || '-'}</td><td>${s.payments.length}</td><td style="font-weight:600">${total.toLocaleString()}</td></tr>`;
+            }).join('')}
+          </table>
+        </div>
+      </div>` : ''}
+
+      <!-- Invoice List -->
+      ${exportData.invoices.length > 0 ? `
+      <div class="report-section">
+        <h3><i data-lucide="file-text"></i>发票清单</h3>
+        <div class="table-wrap">
+          <table>
+            <tr><th>发票号</th><th>金额</th><th>日期</th><th>文件名</th></tr>
+            ${exportData.invoices.map(i => `<tr><td>${i.invoiceNumber}</td><td><strong>${i.amount.toLocaleString()}</strong></td><td>${i.date}</td><td>${i.fileName}</td></tr>`).join('')}
+          </table>
+        </div>
+      </div>` : ''}
+    `;
+
+    lucide.createIcons();
+
+    // Draw charts after DOM is ready
+    requestAnimationFrame(() => {
+      drawBarChart('monthlyBarChart', monthLabels, [
+        { label: '收入', data: monthlyIncome, color: '#2a9d8f' },
+        { label: '支出', data: monthlyExpense, color: '#e94560' }
+      ], { height: 300 });
+
+      drawLineChart('monthlyProfitLine', monthLabels, [
+        { label: '净利润', data: monthlyProfit, color: '#f4a261', fillColor: 'rgba(244,162,97,0.12)' }
+      ], { height: 280 });
+
+      if (catEntries.length > 0) {
+        const catData = catEntries.map(([cat, vals], i) => ({
+          label: cat,
+          value: vals.income + vals.expense,
+          color: catColors[i % catColors.length]
+        }));
+        drawDonutChart('categoryDonut', catData, { centerLabel: '总交易额', size: 200 });
+      }
+    });
+
+  } catch(e) { alertBox(e.message, 'error'); }
+}
+
+async function generateTrendReport() {
+  try {
+    const pid = document.getElementById('rep-pid').value;
+    const year = document.getElementById('rep-year').value;
+
+    // Fetch all transactions and group by year for multi-year comparison
+    const exportData = await get(`/api/projects/${pid}/export`);
+    const txs = exportData.transactions;
+
+    // Group by year
+    const yearMap = {};
+    txs.forEach(t => {
+      const y = t.date.split('T')[0].split('-')[0];
+      if (!yearMap[y]) yearMap[y] = { income: 0, expense: 0, count: 0 };
+      yearMap[y][t.type] += t.amount;
+      yearMap[y].count++;
+    });
+
+    const years = Object.keys(yearMap).sort();
+    const yearLabels = years.map(y => y + '年');
+    const yearIncomes = years.map(y => yearMap[y].income);
+    const yearExpenses = years.map(y => yearMap[y].expense);
+    const yearProfits = years.map(y => yearMap[y].income - yearMap[y].expense);
+
+    // Monthly trend for selected year
+    const monthLabels = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+    const mIncome = new Array(12).fill(0);
+    const mExpense = new Array(12).fill(0);
+    txs.forEach(t => {
+      const d = t.date.split('T')[0];
+      if (d.startsWith(year)) {
+        const m = parseInt(d.split('-')[1]) - 1;
+        if (t.type === 'income') mIncome[m] += t.amount;
+        else mExpense[m] += t.amount;
+      }
+    });
+    const mProfit = mIncome.map((v, i) => v - mExpense[i]);
+
+    // Cumulative profit
+    const cumulativeProfit = [];
+    mProfit.reduce((sum, v) => { sum += v; cumulativeProfit.push(sum); return sum; }, 0);
+
+    document.getElementById('report-content').innerHTML = `
+      <div class="report-section">
+        <h3><i data-lucide="git-branch"></i>年度收支对比</h3>
+        <div class="chart-canvas-wrap">
+          <canvas id="yearlyBarChart"></canvas>
+          <div class="chart-legend">
+            <div class="chart-legend-item"><div class="chart-legend-dot" style="background:#2a9d8f"></div>收入</div>
+            <div class="chart-legend-item"><div class="chart-legend-dot" style="background:#e94560"></div>支出</div>
+            <div class="chart-legend-item"><div class="chart-legend-dot" style="background:#f4a261"></div>利润</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="report-section">
+        <h3><i data-lucide="activity"></i>${year} 年月度利润走势</h3>
+        <div class="chart-canvas-wrap">
+          <canvas id="monthlyTrendLine"></canvas>
+          <div class="chart-legend">
+            <div class="chart-legend-item"><div class="chart-legend-dot" style="background:#f4a261"></div>月度利润</div>
+            <div class="chart-legend-item"><div class="chart-legend-dot" style="background:#6c5ce7"></div>累计利润</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="report-section">
+        <h3><i data-lucide="table"></i>年度汇总数据</h3>
+        <div class="table-wrap">
+          <table>
+            <tr><th>年份</th><th>收入</th><th>支出</th><th>利润</th><th>利润率</th><th>交易笔数</th></tr>
+            ${years.map(y => {
+              const d = yearMap[y];
+              const rate = d.income > 0 ? ((d.income - d.expense) / d.income * 100).toFixed(1) : '0.0';
+              const pColor = (d.income - d.expense) >= 0 ? 'var(--teal)' : 'var(--accent)';
+              return `<tr><td><strong>${y}</strong></td><td style="color:var(--teal)">${d.income.toLocaleString()}</td><td style="color:var(--accent)">${d.expense.toLocaleString()}</td><td style="color:${pColor};font-weight:600">${(d.income - d.expense).toLocaleString()}</td><td>${rate}%</td><td>${d.count}</td></tr>`;
+            }).join('')}
+          </table>
+        </div>
+      </div>
+    `;
+
+    lucide.createIcons();
+
+    requestAnimationFrame(() => {
+      drawBarChart('yearlyBarChart', yearLabels, [
+        { label: '收入', data: yearIncomes, color: '#2a9d8f' },
+        { label: '支出', data: yearExpenses, color: '#e94560' },
+        { label: '利润', data: yearProfits, color: '#f4a261' }
+      ], { height: 280 });
+
+      drawLineChart('monthlyTrendLine', monthLabels, [
+        { label: '月度利润', data: mProfit, color: '#f4a261', fillColor: 'rgba(244,162,97,0.12)' },
+        { label: '累计利润', data: cumulativeProfit, color: '#6c5ce7', fillColor: 'rgba(108,92,231,0.08)' }
+      ], { height: 300 });
+    });
+
+  } catch(e) { alertBox(e.message, 'error'); }
+}
+
+/* ===== User Management ===== */
+const ROLE_LABELS = { admin: '管理员', partner: '合伙人', accountant: '会计', cashier: '出纳', developer: '开发商', supplier: '供应商', auditor: '审计', friend: '朋友' };
+const ROLE_COLORS = { admin: '#e94560', partner: '#d63031', accountant: '#2a9d8f', cashier: '#f4a261', developer: '#6c5ce7', supplier: '#00b894', auditor: '#fdcb6e', friend: '#0984e3' };
+const STATUS_LABELS = { active: '活跃', inactive: '停用', suspended: '冻结' };
+
+async function createUser() {
+  try {
+    const u = await post('/api/users', {
+      name: document.getElementById('u-name').value,
+      email: document.getElementById('u-email').value,
+      phone: document.getElementById('u-phone').value,
+      role: document.getElementById('u-role').value
+    });
+    alertBox(`用户创建成功: ${u.id} (${ROLE_LABELS[u.role]})`);
+    loadUsers();
+  } catch(e) { alertBox(e.message, 'error'); }
+}
+
+async function loadUsers() {
+  try {
+    const role = document.getElementById('ul-role').value;
+    const url = role ? `/api/users?role=${role}` : '/api/users';
+    const list = await get(url);
+    if (list.length === 0) {
+      document.getElementById('user-list').innerHTML = '<p style="color:var(--text-muted)">暂无用户</p>';
+      return;
+    }
+    let html = '<div class="table-wrap"><table><tr><th>ID</th><th>姓名</th><th>邮箱</th><th>电话</th><th>角色</th><th>状态</th><th>创建时间</th></tr>';
+    for (const u of list) {
+      const roleColor = ROLE_COLORS[u.role] || 'var(--text-muted)';
+      const statusClass = u.status === 'active' ? 'income' : 'expense';
+      html += `<tr>
+        <td>${u.id}</td>
+        <td><strong>${u.name}</strong></td>
+        <td>${u.email || '-'}</td>
+        <td>${u.phone || '-'}</td>
+        <td><span class="badge" style="background:${roleColor}15;color:${roleColor}">${ROLE_LABELS[u.role] || u.role}</span></td>
+        <td><span class="badge ${statusClass}">${STATUS_LABELS[u.status] || u.status}</span></td>
+        <td>${new Date(u.createdAt).toLocaleDateString('zh-CN')}</td>
+      </tr>`;
+    }
+    html += '</table></div>';
+    document.getElementById('user-list').innerHTML = html;
+    lucide.createIcons();
+  } catch(e) { alertBox(e.message, 'error'); }
+}
+
+async function changeUserRole() {
+  try {
+    const uid = document.getElementById('ur-uid').value;
+    const role = document.getElementById('ur-role').value;
+    const u = await put(`/api/users/${uid}/role`, { role });
+    alertBox(`角色变更成功: ${u.name} -> ${ROLE_LABELS[u.role]}`);
+    loadUsers();
+  } catch(e) { alertBox(e.message, 'error'); }
+}
+
+async function viewPermissions() {
+  try {
+    const uid = document.getElementById('ur-uid').value;
+    const info = await get(`/api/users/${uid}/permissions`);
+    const permHtml = info.permissions.map(p => {
+      const parts = p.split('.');
+      return `<span style="display:inline-block;background:var(--cream);padding:0.25rem 0.6rem;border-radius:999px;font-size:0.75rem;margin:0.2rem;color:var(--text-secondary)">${parts[0]} <strong>${parts[1]}</strong></span>`;
+    }).join('');
+    document.getElementById('perm-result').innerHTML = `
+      <div style="background:var(--cream);padding:1rem;border-radius:var(--radius-sm);margin-bottom:0.75rem">
+        <div style="font-size:0.8rem;color:var(--text-muted)">用户</div>
+        <div style="font-weight:600">${info.name} (${info.id})</div>
+        <div style="font-size:0.85rem;color:${ROLE_COLORS[info.role]}">${info.label}</div>
+      </div>
+      <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:0.4rem">权限列表 (${info.permissions.length}项)</div>
+      <div style="line-height:2">${permHtml}</div>`;
+  } catch(e) { alertBox(e.message, 'error'); }
+}
+
+async function activateUser() {
+  try {
+    const u = await put(`/api/users/${document.getElementById('us-uid').value}/activate`);
+    alertBox(`用户 ${u.name} 已激活`);
+    loadUsers();
+  } catch(e) { alertBox(e.message, 'error'); }
+}
+
+async function deactivateUser() {
+  try {
+    const u = await put(`/api/users/${document.getElementById('us-uid').value}/deactivate`);
+    alertBox(`用户 ${u.name} 已停用`);
+    loadUsers();
+  } catch(e) { alertBox(e.message, 'error'); }
+}
+
+async function put(path, body) {
+  const r = await fetch(API + path, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  const data = await r.json();
+  if (!r.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+
+async function loadUserStats() {
+  try {
+    const stats = await get('/api/users/stats/summary');
+    let html = '<div class="stats-row">';
+    for (const [role, s] of Object.entries(stats)) {
+      html += `<div class="stat-card count"><div class="stat-icon" style="background:${ROLE_COLORS[role]}15;color:${ROLE_COLORS[role]}"><i data-lucide="users"></i></div><div class="value">${s.active}<span style="font-size:0.9rem;color:var(--text-muted)">/${s.count}</span></div><div class="label">${s.label}</div></div>`;
+    }
+    html += '</div>';
+    document.getElementById('user-stats').innerHTML = html;
+    lucide.createIcons();
+  } catch(e) { alertBox(e.message, 'error'); }
+}
+
+async function loadRoleMatrix() {
+  try {
+    const roles = await get('/api/roles');
+    const permKeys = [
+      'project.create','project.read','project.update','project.delete',
+      'member.manage','transaction.create','transaction.read',
+      'profit.read','profit.simulate',
+      'supplier.create','supplier.read','supplier.pay','supplier.reconcile',
+      'invoice.create','invoice.read',
+      'user.manage','import','export','report.read'
+    ];
+    const permLabels = {
+      'project.create':'创建项目','project.read':'查看项目','project.update':'编辑项目','project.delete':'删除项目',
+      'member.manage':'成员管理','transaction.create':'记录交易','transaction.read':'查看交易',
+      'profit.read':'查看利润','profit.simulate':'利润模拟',
+      'supplier.create':'添加供应商','supplier.read':'查看供应商','supplier.pay':'供应商付款','supplier.reconcile':'供应商对账',
+      'invoice.create':'上传发票','invoice.read':'查看发票',
+      'user.manage':'用户管理','import':'导入数据','export':'导出数据','report.read':'查看报表'
+    };
+
+    let html = '<div class="table-wrap" style="overflow-x:auto"><table><tr><th style="min-width:100px">权限</th>';
+    roles.forEach(r => { html += `<th style="text-align:center;min-width:80px">${r.label}</th>`; });
+    html += '</tr>';
+
+    let lastGroup = '';
+    permKeys.forEach(pk => {
+      const group = pk.split('.')[0];
+      const groupLabel = {project:'项目管理',member:'成员',transaction:'交易',profit:'利润',supplier:'供应商',invoice:'发票',user:'用户',import:'数据',export:'数据',report:'报表'}[group];
+      if (group !== lastGroup) {
+        html += `<tr><td colspan="${roles.length + 1}" style="background:var(--cream-dark);font-weight:600;font-size:0.8rem;padding:0.5rem 1rem;text-transform:uppercase;letter-spacing:0.05em">${groupLabel}</td></tr>`;
+        lastGroup = group;
+      }
+      html += `<tr><td style="font-size:0.85rem">${permLabels[pk] || pk}</td>`;
+      roles.forEach(r => {
+        const has = r.permissions.includes(pk);
+        html += `<td style="text-align:center">${has ? '<i data-lucide="check" style="width:16px;height:16px;color:var(--teal);display:inline"></i>' : '<span style="color:var(--border)">-</span>'}</td>`;
+      });
+      html += '</tr>';
+    });
+    html += '</table></div>';
+    document.getElementById('role-matrix').innerHTML = html;
+    lucide.createIcons();
+  } catch(e) { alertBox(e.message, 'error'); }
+}
+
+async function importData() {
+  try {
+    const result = await post('/api/projects/' + document.getElementById('im-pid').value + '/import', { rows: JSON.parse(document.getElementById('im-data').value) });
+    document.getElementById('import-result').innerHTML = `
+      <div class="stats-row">
+        <div class="stat-card income"><div class="stat-icon"><i data-lucide="check"></i></div><div class="value">${result.imported}</div><div class="label">成功导入</div></div>
+        <div class="stat-card expense"><div class="stat-icon"><i data-lucide="x"></i></div><div class="value">${result.failed.length}</div><div class="label">失败</div></div>
+      </div>
+      ${result.failed.length > 0 ? '<pre>' + JSON.stringify(result.failed, null, 2) + '</pre>' : ''}`;
+    lucide.createIcons();
+  } catch(e) { alertBox(e.message, 'error'); }
+}
+async function exportData() {
+  try {
+    const result = await get('/api/projects/' + document.getElementById('ex-pid').value + '/export');
+    document.getElementById('export-result').innerHTML = `
+      <div class="stats-row">
+        <div class="stat-card income"><div class="stat-icon"><i data-lucide="trending-up"></i></div><div class="value">${result.summary.income.toLocaleString()}</div><div class="label">收入</div></div>
+        <div class="stat-card expense"><div class="stat-icon"><i data-lucide="trending-down"></i></div><div class="value">${result.summary.expense.toLocaleString()}</div><div class="label">支出</div></div>
+        <div class="stat-card net"><div class="stat-icon"><i data-lucide="equal"></i></div><div class="value">${result.summary.net.toLocaleString()}</div><div class="label">净额</div></div>
+      </div>
+      <pre>${JSON.stringify(result, null, 2)}</pre>`;
+    lucide.createIcons();
+  } catch(e) { alertBox(e.message, 'error'); }
+}
+
+async function loadDemoData() {
+  try {
+    const data = await fetch('/demo-data.json').then(r => {
+      if (!r.ok) throw new Error('无法加载模拟数据文件');
+      return r.json();
+    });
+
+    // 1. Create users
+    const userIdMap = {};
+    if (data.users) {
+      for (const user of data.users) {
+        const created = await post('/api/users', {
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          role: user.role
+        });
+        userIdMap[user.id] = created.id;
+      }
+    }
+
+    // 2. Create projects
+    const projectIdMap = {};
+    if (data.projects) {
+      for (const project of data.projects) {
+        const created = await post('/api/projects', {
+          name: project.name,
+          description: project.description,
+          createdBy: userIdMap[project.createdBy] || project.createdBy
+        });
+        projectIdMap[project.id] = created.id;
+
+        // 3. Add members
+        if (project.members) {
+          for (const member of project.members) {
+            await post('/api/projects/' + created.id + '/members', {
+              userId: userIdMap[member.userId] || member.userId,
+              role: member.role,
+              ratio: member.ratio
+            });
+          }
+        }
+
+        // 4. Add transactions
+        if (project.transactions) {
+          for (const tx of project.transactions) {
+            await post('/api/projects/' + created.id + '/transactions', {
+              type: tx.type,
+              amount: tx.amount,
+              date: tx.date,
+              description: tx.description,
+              category: tx.category,
+              recordedBy: userIdMap[tx.recordedBy] || tx.recordedBy
+            });
+          }
+        }
+
+        // 5. Add suppliers and payments
+        if (project.suppliers) {
+          for (const supplier of project.suppliers) {
+            const createdSupplier = await post('/api/projects/' + created.id + '/suppliers', {
+              name: supplier.name,
+              contact: supplier.contact
+            });
+            if (supplier.payments) {
+              for (const payment of supplier.payments) {
+                await post('/api/suppliers/' + createdSupplier.id + '/payments', {
+                  amount: payment.amount,
+                  date: payment.date,
+                  note: payment.note
+                });
+              }
+            }
+          }
+        }
+
+        // 6. Add invoices
+        if (project.invoices) {
+          for (const invoice of project.invoices) {
+            await post('/api/projects/' + created.id + '/invoices', {
+              fileName: invoice.invoiceNumber || invoice.fileName
+            });
+          }
+        }
+      }
+    }
+
+    alertBox('模拟数据加载成功！');
+    switchTab('projects', document.querySelector('.tab'));
+  } catch(e) {
+    alertBox('加载模拟数据失败: ' + e.message, 'error');
+  }
+}
+
+// Toggle help overlay
+function toggleHelp() {
+  const overlay = document.getElementById('helpOverlay');
+  overlay.classList.toggle('open');
+  document.body.style.overflow = overlay.classList.contains('open') ? 'hidden' : '';
+  lucide.createIcons();
+}
+
+// Close help on Escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const overlay = document.getElementById('helpOverlay');
+    if (overlay.classList.contains('open')) toggleHelp();
+  }
+});
+
+// Initialize Lucide icons
+document.addEventListener('DOMContentLoaded', () => {
+  lucide.createIcons();
+  // Check if already logged in
+  if (sessionStorage.getItem('hh_logged_in') === 'true') {
+    document.getElementById('loginOverlay').classList.add('hidden');
+    document.getElementById('versionBar').style.display = 'flex';
+  }
+  // Focus login input
+  const loginInput = document.getElementById('login-user');
+  if (loginInput && !sessionStorage.getItem('hh_logged_in')) {
+    setTimeout(() => loginInput.focus(), 600);
+  }
+});
+
+// ===== Login System =====
+const VALID_USERS = {
+  'admin': { password: 'admin123', role: '管理员', name: '系统管理员' },
+  'user':  { password: 'user123',  role: '普通用户', name: '普通用户' }
+};
+
+function handleLogin() {
+  const userInput = document.getElementById('login-user');
+  const passInput = document.getElementById('login-pass');
+  const errorDiv = document.getElementById('loginError');
+  const username = userInput.value.trim();
+  const password = passInput.value;
+
+  if (!username || !password) {
+    errorDiv.textContent = '请输入账号和密码';
+    errorDiv.style.display = 'block';
+    return;
+  }
+
+  const user = VALID_USERS[username];
+  if (!user || user.password !== password) {
+    errorDiv.textContent = '账号或密码错误，请重试';
+    errorDiv.style.display = 'block';
+    passInput.value = '';
+    passInput.focus();
+    return;
+  }
+
+  // Login success
+  sessionStorage.setItem('hh_logged_in', 'true');
+  sessionStorage.setItem('hh_user', username);
+  sessionStorage.setItem('hh_role', user.role);
+  sessionStorage.setItem('hh_name', user.name);
+
+  document.getElementById('loginOverlay').classList.add('hidden');
+  document.getElementById('versionBar').style.display = 'flex';
+  lucide.createIcons();
+}
+
+function handleLogout() {
+  sessionStorage.removeItem('hh_logged_in');
+  sessionStorage.removeItem('hh_user');
+  sessionStorage.removeItem('hh_role');
+  sessionStorage.removeItem('hh_name');
+  document.getElementById('loginOverlay').classList.remove('hidden');
+  document.getElementById('versionBar').style.display = 'none';
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('loginError').style.display = 'none';
+  setTimeout(() => document.getElementById('login-user').focus(), 500);
+}
+
+// Allow Enter key to submit login
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    const loginOverlay = document.getElementById('loginOverlay');
+    if (loginOverlay && !loginOverlay.classList.contains('hidden')) {
+      handleLogin();
+    }
+  }
+});
+
+// ===== Changelog =====
+function toggleChangelog() {
+  const overlay = document.getElementById('changelogOverlay');
+  overlay.classList.toggle('open');
+  document.body.style.overflow = overlay.classList.contains('open') ? 'hidden' : '';
+  lucide.createIcons();
+}
+</script>
+</body>
+</html>

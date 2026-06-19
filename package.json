@@ -1,0 +1,19 @@
+{
+  "name": "openspec-finance-demo",
+  "version": "1.0.0",
+  "description": "Finance Collaboration System Demo using OpenSpec",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "jest",
+    "test:unit": "jest tests/unit",
+    "test:system": "jest tests/system"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.2.2"
+  }
+}

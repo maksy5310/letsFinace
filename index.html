@@ -1283,6 +1283,8 @@
         <div class="form-group"><label>供应商名称</label><input id="s-name" placeholder="例如：印刷厂"></div>
         <div class="form-group"><label>联系方式</label><input id="s-contact" placeholder="电话/邮箱"></div>
         <button class="btn btn-primary" onclick="addSupplier()"><i data-lucide="plus"></i>添加</button>
+        <button class="btn btn-secondary" onclick="listSuppliers()" style="margin-left:0.5rem"><i data-lucide="list"></i>查询列表</button>
+        <div id="supplier-list" style="margin-top:1rem"></div>
       </div>
       <div class="card">
         <h3><span class="icon" style="background:rgba(244,162,97,0.1)"><i data-lucide="credit-card" style="color:var(--gold)"></i></span> 记录付款</h3>
@@ -1687,6 +1689,18 @@ function localPost(path, body) {
   if (ratioMatch) {
     return { success: true };
   }
+  // Profit simulate
+  const simMatch = path.match(/^\/api\/projects\/([^/]+)\/profit\/simulate$/);
+  if (simMatch) {
+    const pid = simMatch[1];
+    const txs = demoStore.transactions[pid] || [];
+    const income = txs.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+    const expense = txs.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+    const addInc = body.additionalIncome || 0;
+    const addExp = body.additionalExpense || 0;
+    const simNet = (income + addInc) - (expense + addExp);
+    return { simulatedNet: simNet, originalNet: income - expense };
+  }
   // Transactions
   const txMatch = path.match(/^\/api\/projects\/([^/]+)\/transactions$/);
   if (txMatch) {
@@ -1773,7 +1787,16 @@ function localGet(path) {
     const expense = txs.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
     const project = demoStore.projects[pid];
     const members = project ? project.members : [];
-    return { income, expense, netProfit: income - expense, distribution: members.map(m => ({ userId: m.userId, ratio: m.ratio, amount: (income - expense) * m.ratio, share: (income - expense) * m.ratio })) };
+    return { income, expense, netProfit: income - expense, totalIncome: income, totalExpense: expense, distribution: members.map(m => ({ userId: m.userId, ratio: m.ratio, amount: (income - expense) * m.ratio, share: (income - expense) * m.ratio })) };
+  }
+  // Totals (for queryTotals)
+  const totalsMatch = path.match(/^\/api\/projects\/([^/]+)\/totals/);
+  if (totalsMatch) {
+    const pid = totalsMatch[1];
+    const txs = demoStore.transactions[pid] || [];
+    const income = txs.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+    const expense = txs.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+    return { income, expense, net: income - expense };
   }
   // Suppliers
   const supMatch = path.match(/^\/api\/projects\/([^/]+)\/suppliers$/);
@@ -1783,7 +1806,20 @@ function localGet(path) {
   // Supplier reconcile
   const recMatch = path.match(/^\/api\/suppliers\/([^/]+)\/reconcile$/);
   if (recMatch) {
-    return { totalBilled: 0, totalPaid: 0, outstanding: 0, status: 'balanced' };
+    const sid = recMatch[1];
+    let totalPaid = 0, totalPending = 0, totalOverdue = 0;
+    const discrepancies = [];
+    for (const pid of Object.keys(demoStore.suppliers)) {
+      const sup = (demoStore.suppliers[pid] || []).find(s => s.id === sid);
+      if (sup) {
+        for (const p of (sup.payments || [])) {
+          if (p.status === 'paid') totalPaid += p.amount;
+          else if (p.status === 'pending') totalPending += p.amount;
+          else if (p.status === 'overdue') totalOverdue += p.amount;
+        }
+      }
+    }
+    return { totalPaid, totalPending, totalOverdue, totalBilled: totalPaid + totalPending + totalOverdue, discrepancies };
   }
   // Invoices
   const invMatch = path.match(/^\/api\/projects\/([^/]+)\/invoices$/);
@@ -1943,6 +1979,23 @@ async function addSupplier() {
   try {
     await post('/api/projects/' + document.getElementById('s-pid').value + '/suppliers', { name: document.getElementById('s-name').value, contact: document.getElementById('s-contact').value });
     alertBox('供应商添加成功');
+  } catch(e) { alertBox(e.message, 'error'); }
+}
+async function listSuppliers() {
+  try {
+    const pid = document.getElementById('s-pid').value;
+    const list = await get('/api/projects/' + pid + '/suppliers');
+    if (!list || list.length === 0) {
+      document.getElementById('supplier-list').innerHTML = '<p style="color:var(--text-muted)">暂无供应商数据</p>';
+      return;
+    }
+    let html = '<div class="table-wrap"><table><tr><th>ID</th><th>名称</th><th>联系方式</th><th>付款笔数</th><th>总金额</th></tr>';
+    for (const s of list) {
+      const total = (s.payments || []).reduce((sum, p) => sum + p.amount, 0);
+      html += `<tr><td>${s.id}</td><td><strong>${s.name}</strong></td><td>${s.contact}</td><td>${(s.payments || []).length}</td><td>${total.toLocaleString()}</td></tr>`;
+    }
+    html += '</table></div>';
+    document.getElementById('supplier-list').innerHTML = html;
   } catch(e) { alertBox(e.message, 'error'); }
 }
 async function recordPayment() {

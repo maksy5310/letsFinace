@@ -1710,6 +1710,16 @@ function localPost(path, body) {
   // Supplier payments
   const payMatch = path.match(/^\/api\/suppliers\/([^/]+)\/payments$/);
   if (payMatch) {
+    const sid = payMatch[1];
+    // Find supplier in all projects and add payment
+    for (const pid of Object.keys(demoStore.suppliers)) {
+      const sups = demoStore.suppliers[pid];
+      const sup = sups.find(s => s.id === sid);
+      if (sup) {
+        sup.payments.push({ amount: body.amount, date: body.date, note: body.note, status: 'paid', dueDate: body.date });
+        return { success: true };
+      }
+    }
     return { success: true };
   }
   // Invoices
@@ -1739,6 +1749,16 @@ function localGet(path) {
   if (projectMatch) {
     return demoStore.projects[projectMatch[1]] || { error: 'Not found' };
   }
+  // Export (for reports)
+  const exportMatch = path.match(/^\/api\/projects\/([^/]+)\/export$/);
+  if (exportMatch) {
+    const pid = exportMatch[1];
+    return {
+      transactions: demoStore.transactions[pid] || [],
+      suppliers: demoStore.suppliers[pid] || [],
+      invoices: demoStore.invoices[pid] || []
+    };
+  }
   // Transactions
   const txMatch = path.match(/^\/api\/projects\/([^/]+)\/transactions$/);
   if (txMatch) {
@@ -1753,7 +1773,7 @@ function localGet(path) {
     const expense = txs.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
     const project = demoStore.projects[pid];
     const members = project ? project.members : [];
-    return { income, expense, netProfit: income - expense, distribution: members.map(m => ({ userId: m.userId, ratio: m.ratio, amount: (income - expense) * m.ratio })) };
+    return { income, expense, netProfit: income - expense, distribution: members.map(m => ({ userId: m.userId, ratio: m.ratio, amount: (income - expense) * m.ratio, share: (income - expense) * m.ratio })) };
   }
   // Suppliers
   const supMatch = path.match(/^\/api\/projects\/([^/]+)\/suppliers$/);
@@ -1886,12 +1906,13 @@ async function queryTxs() {
 async function calcProfit() {
   try {
     const result = await get('/api/projects/' + document.getElementById('pr-pid').value + '/profit');
-    const distHtml = result.distribution.map(d =>
-      `<div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid var(--border)">
+    const distHtml = result.distribution.map(d => {
+      const sv = d.share !== undefined ? d.share : (d.amount || 0);
+      return `<div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid var(--border)">
         <span>${d.userId} (${(d.ratio * 100).toFixed(0)}%)</span>
-        <strong style="color:${d.share >= 0 ? 'var(--teal)' : 'var(--accent)'}">${d.share.toLocaleString()}</strong>
-      </div>`
-    ).join('');
+        <strong style="color:${sv >= 0 ? 'var(--teal)' : 'var(--accent)'}">${sv.toLocaleString()}</strong>
+      </div>`;
+    }).join('');
     document.getElementById('profit-result').innerHTML = `
       <div class="stats-row">
         <div class="stat-card income"><div class="stat-icon"><i data-lucide="trending-up"></i></div><div class="value">${result.totalIncome.toLocaleString()}</div><div class="label">总收入</div></div>
@@ -2212,12 +2233,19 @@ async function generateReport() {
     const year = document.getElementById('rep-year').value;
     const dimension = document.getElementById('rep-dimension').value;
 
+    if (!pid) { alertBox('请输入项目ID', 'error'); return; }
+
     const [profit, exportData] = await Promise.all([
       get(`/api/projects/${pid}/profit`),
       get(`/api/projects/${pid}/export`)
     ]);
 
-    const txs = exportData.transactions;
+    const txs = exportData.transactions || [];
+    if (txs.length === 0) {
+      document.getElementById('report-content').innerHTML = '<div class="card" style="text-align:center;padding:2rem;color:var(--text-muted)"><i data-lucide="inbox" style="width:48px;height:48px;margin-bottom:0.5rem;display:inline-block;opacity:0.3"></i><p>该项目暂无交易数据，请先在收支记录中录入数据</p></div>';
+      lucide.createIcons();
+      return;
+    }
 
     // Group by month
     const monthLabels = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
@@ -2333,14 +2361,16 @@ async function generateReport() {
         <div class="table-wrap">
           <table>
             <tr><th>合伙人</th><th>比例</th><th>分配金额</th><th>状态</th></tr>
-            ${profit.distribution.map(d => `
+            ${profit.distribution.map(d => {
+              const shareVal = d.share !== undefined ? d.share : (d.amount || 0);
+              return `
               <tr>
                 <td><i data-lucide="user" style="width:14px;height:14px;display:inline;vertical-align:middle;margin-right:0.3rem"></i>${d.userId}</td>
                 <td>${(d.ratio * 100).toFixed(0)}%</td>
-                <td style="color:${d.share >= 0 ? 'var(--teal)' : 'var(--accent)'};font-weight:600">${d.share.toLocaleString()}</td>
-                <td><span class="badge ${d.share >= 0 ? 'income' : 'expense'}">${d.share >= 0 ? '盈利' : '亏损'}</span></td>
-              </tr>
-            `).join('')}
+                <td style="color:${shareVal >= 0 ? 'var(--teal)' : 'var(--accent)'};font-weight:600">${shareVal.toLocaleString()}</td>
+                <td><span class="badge ${shareVal >= 0 ? 'income' : 'expense'}">${shareVal >= 0 ? '盈利' : '亏损'}</span></td>
+              </tr>`;
+            }).join('')}
           </table>
         </div>
       </div>
@@ -2724,52 +2754,60 @@ async function loadDemoData() {
             });
           }
         }
+      }
+    }
 
-        // 4. Add transactions
-        if (project.transactions) {
-          for (const tx of project.transactions) {
-            await post('/api/projects/' + created.id + '/transactions', {
-              type: tx.type,
-              amount: tx.amount,
-              date: tx.date,
-              description: tx.description,
-              category: tx.category,
-              recordedBy: userIdMap[tx.recordedBy] || tx.recordedBy
-            });
-          }
-        }
+    // 4. Add transactions (flat structure)
+    if (data.transactions) {
+      for (const tx of data.transactions) {
+        const pid = projectIdMap[tx.projectId] || tx.projectId;
+        await post('/api/projects/' + pid + '/transactions', {
+          type: tx.type,
+          amount: tx.amount,
+          date: tx.date,
+          description: tx.description,
+          category: tx.category,
+          recordedBy: userIdMap[tx.recordedBy] || tx.recordedBy
+        });
+      }
+    }
 
-        // 5. Add suppliers and payments
-        if (project.suppliers) {
-          for (const supplier of project.suppliers) {
-            const createdSupplier = await post('/api/projects/' + created.id + '/suppliers', {
-              name: supplier.name,
-              contact: supplier.contact
-            });
-            if (supplier.payments) {
-              for (const payment of supplier.payments) {
-                await post('/api/suppliers/' + createdSupplier.id + '/payments', {
-                  amount: payment.amount,
-                  date: payment.date,
-                  note: payment.note
-                });
-              }
-            }
-          }
-        }
-
-        // 6. Add invoices
-        if (project.invoices) {
-          for (const invoice of project.invoices) {
-            await post('/api/projects/' + created.id + '/invoices', {
-              fileName: invoice.invoiceNumber || invoice.fileName
+    // 5. Add suppliers and payments (flat structure)
+    if (data.suppliers) {
+      for (const supplier of data.suppliers) {
+        const pid = projectIdMap[supplier.projectId] || supplier.projectId;
+        const createdSupplier = await post('/api/projects/' + pid + '/suppliers', {
+          name: supplier.name,
+          contact: supplier.contact
+        });
+        if (supplier.payments) {
+          for (const payment of supplier.payments) {
+            await post('/api/suppliers/' + createdSupplier.id + '/payments', {
+              amount: payment.amount,
+              date: payment.dueDate || payment.date,
+              note: payment.note || ''
             });
           }
         }
       }
     }
 
+    // 6. Add invoices (flat structure)
+    if (data.invoices) {
+      for (const invoice of data.invoices) {
+        const pid = projectIdMap[invoice.projectId] || invoice.projectId;
+        await post('/api/projects/' + pid + '/invoices', {
+          fileName: invoice.invoiceNumber || invoice.fileName
+        });
+      }
+    }
+
     alertBox('模拟数据加载成功！');
+    // Auto-fill report project ID with the first project
+    const firstPid = Object.values(demoStore.projects)[0];
+    if (firstPid) {
+      document.getElementById('rep-pid').value = firstPid.id;
+    }
     switchTab('projects', document.querySelector('.tab'));
   } catch(e) {
     alertBox('加载模拟数据失败: ' + e.message, 'error');

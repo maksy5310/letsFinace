@@ -1612,6 +1612,182 @@
 
 <script>
 const API = '';
+
+// ===== In-memory store for static demo mode =====
+const demoStore = {
+  users: {},
+  projects: {},
+  transactions: {},
+  suppliers: {},
+  invoices: {},
+  _idCounter: 1,
+  genId(prefix) { return prefix + '-' + (this._idCounter++); }
+};
+
+// Override post/get to use in-memory store when API is unavailable
+let useLocalStore = false;
+
+async function post(path, body) {
+  if (useLocalStore) return localPost(path, body);
+  try {
+    const r = await fetch(API + path, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || 'Request failed');
+    return data;
+  } catch(e) {
+    if (e.message.includes('Failed to fetch') || e.message.includes('NetworkError')) {
+      useLocalStore = true;
+      return localPost(path, body);
+    }
+    throw e;
+  }
+}
+
+async function get(path) {
+  if (useLocalStore) return localGet(path);
+  try {
+    const r = await fetch(API + path);
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || 'Request failed');
+    return data;
+  } catch(e) {
+    if (e.message.includes('Failed to fetch') || e.message.includes('NetworkError')) {
+      useLocalStore = true;
+      return localGet(path);
+    }
+    throw e;
+  }
+}
+
+function localPost(path, body) {
+  // Users
+  if (path === '/api/users') {
+    const id = demoStore.genId('user');
+    const user = { id, name: body.name, email: body.email, phone: body.phone, role: body.role, status: 'active', createdAt: new Date().toISOString() };
+    demoStore.users[id] = user;
+    return user;
+  }
+  // Projects
+  if (path === '/api/projects' && !path.includes('/members') && !path.includes('/transactions') && !path.includes('/suppliers') && !path.includes('/invoices') && !path.includes('/ratios')) {
+    const id = demoStore.genId('project');
+    const project = { id, name: body.name, description: body.description, createdBy: body.createdBy, members: [], createdAt: new Date().toISOString() };
+    demoStore.projects[id] = project;
+    return project;
+  }
+  // Members
+  const memberMatch = path.match(/^\/api\/projects\/([^/]+)\/members$/);
+  if (memberMatch) {
+    const pid = memberMatch[1];
+    if (demoStore.projects[pid]) {
+      demoStore.projects[pid].members.push({ userId: body.userId, role: body.role, ratio: body.ratio });
+      return { success: true };
+    }
+    return { success: true };
+  }
+  // Ratios
+  const ratioMatch = path.match(/^\/api\/projects\/([^/]+)\/ratios$/);
+  if (ratioMatch) {
+    return { success: true };
+  }
+  // Transactions
+  const txMatch = path.match(/^\/api\/projects\/([^/]+)\/transactions$/);
+  if (txMatch) {
+    const pid = txMatch[1];
+    const id = demoStore.genId('tx');
+    const tx = { id, projectId: pid, type: body.type, amount: body.amount, date: body.date, description: body.description, category: body.category, recordedBy: body.recordedBy, createdAt: new Date().toISOString() };
+    if (!demoStore.transactions[pid]) demoStore.transactions[pid] = [];
+    demoStore.transactions[pid].push(tx);
+    return tx;
+  }
+  // Suppliers
+  const supMatch = path.match(/^\/api\/projects\/([^/]+)\/suppliers$/);
+  if (supMatch) {
+    const pid = supMatch[1];
+    const id = demoStore.genId('supplier');
+    const supplier = { id, projectId: pid, name: body.name, contact: body.contact, payments: [] };
+    if (!demoStore.suppliers[pid]) demoStore.suppliers[pid] = [];
+    demoStore.suppliers[pid].push(supplier);
+    return supplier;
+  }
+  // Supplier payments
+  const payMatch = path.match(/^\/api\/suppliers\/([^/]+)\/payments$/);
+  if (payMatch) {
+    return { success: true };
+  }
+  // Invoices
+  const invMatch = path.match(/^\/api\/projects\/([^/]+)\/invoices$/);
+  if (invMatch) {
+    const pid = invMatch[1];
+    const id = demoStore.genId('inv');
+    const invoice = { id, projectId: pid, fileName: body.fileName, amount: 0, date: new Date().toISOString().split('T')[0], invoiceNumber: body.fileName };
+    if (!demoStore.invoices[pid]) demoStore.invoices[pid] = [];
+    demoStore.invoices[pid].push(invoice);
+    return invoice;
+  }
+  // Excel import
+  if (path.includes('/import')) {
+    return { imported: 0 };
+  }
+  return { success: true };
+}
+
+function localGet(path) {
+  // All projects
+  if (path === '/api/projects') {
+    return Object.values(demoStore.projects);
+  }
+  // Project by ID
+  const projectMatch = path.match(/^\/api\/projects\/([^/]+)$/);
+  if (projectMatch) {
+    return demoStore.projects[projectMatch[1]] || { error: 'Not found' };
+  }
+  // Transactions
+  const txMatch = path.match(/^\/api\/projects\/([^/]+)\/transactions$/);
+  if (txMatch) {
+    return demoStore.transactions[txMatch[1]] || [];
+  }
+  // Profit
+  const profitMatch = path.match(/^\/api\/projects\/([^/]+)\/profit$/);
+  if (profitMatch) {
+    const pid = profitMatch[1];
+    const txs = demoStore.transactions[pid] || [];
+    const income = txs.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+    const expense = txs.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+    const project = demoStore.projects[pid];
+    const members = project ? project.members : [];
+    return { income, expense, netProfit: income - expense, distribution: members.map(m => ({ userId: m.userId, ratio: m.ratio, amount: (income - expense) * m.ratio })) };
+  }
+  // Suppliers
+  const supMatch = path.match(/^\/api\/projects\/([^/]+)\/suppliers$/);
+  if (supMatch) {
+    return demoStore.suppliers[supMatch[1]] || [];
+  }
+  // Supplier reconcile
+  const recMatch = path.match(/^\/api\/suppliers\/([^/]+)\/reconcile$/);
+  if (recMatch) {
+    return { totalBilled: 0, totalPaid: 0, outstanding: 0, status: 'balanced' };
+  }
+  // Invoices
+  const invMatch = path.match(/^\/api\/projects\/([^/]+)\/invoices$/);
+  if (invMatch) {
+    return demoStore.invoices[invMatch[1]] || [];
+  }
+  // Users
+  if (path === '/api/users') {
+    return Object.values(demoStore.users);
+  }
+  // Report
+  const reportMatch = path.match(/^\/api\/projects\/([^/]+)\/report$/);
+  if (reportMatch) {
+    return { monthly: [], yearly: [] };
+  }
+  // Permissions
+  if (path.includes('/permissions')) {
+    return {};
+  }
+  return [];
+}
+
 function switchTab(name, el) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -1625,18 +1801,6 @@ function alertBox(msg, type='success') {
   box.innerHTML = `<div class="alert ${type}"><i data-lucide="${icon}"></i>${msg}</div>`;
   lucide.createIcons();
   setTimeout(() => box.innerHTML = '', 4000);
-}
-async function post(path, body) {
-  const r = await fetch(API + path, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
-  const data = await r.json();
-  if (!r.ok) throw new Error(data.error || 'Request failed');
-  return data;
-}
-async function get(path) {
-  const r = await fetch(API + path);
-  const data = await r.json();
-  if (!r.ok) throw new Error(data.error || 'Request failed');
-  return data;
 }
 
 async function createProject() {

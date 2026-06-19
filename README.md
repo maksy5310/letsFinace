@@ -9,6 +9,8 @@
 GitHub Pages 部署地址：
 **[https://maksy5310.github.io/letsFinace/](https://maksy5310.github.io/letsFinace/)**
 
+> 系统支持纯静态部署，无需后端服务器即可在 GitHub Pages 上完整运行所有功能。
+
 ### 测试账号
 
 | 账号 | 密码 | 角色 |
@@ -18,17 +20,24 @@ GitHub Pages 部署地址：
 
 > 提示：当前为测试阶段，登录提示框中的账号密码后续开发完成后将移除。
 
+### 快速开始
+
+1. 打开在线地址，使用测试账号登录
+2. 点击 **"加载模拟数据"** 按钮，系统自动填充示例数据
+3. 所有页面的项目ID通过下拉框选择，无需手动输入
+4. 可自由切换各功能模块进行体验
+
 ## 功能特性
 
 | 模块 | 功能说明 |
 |------|----------|
-| 项目管理 | 创建项目、添加成员、设置分成比例 |
-| 收支记录 | 录入收入/支出、按日期范围查询统计 |
+| 项目管理 | 创建项目、添加成员、设置分成比例、项目列表查看 |
+| 收支记录 | 录入收入/支出、按日期范围查询统计、交易明细 |
 | 利润计算 | 自动计算净利润、按比例分配、情景模拟 |
-| 供应商对账 | 添加供应商、记录付款、自动对账 |
+| 供应商对账 | 添加供应商、查询供应商列表、记录付款、自动对账 |
 | 发票管理 | 上传发票（模拟OCR）、查看发票列表 |
-| 报表中心 | 月度/年度收支对比、利润走势、分类占比、趋势分析 |
-| 用户管理 | 创建用户、角色分配、权限矩阵查看 |
+| 报表中心 | 年度财务概览、月度收支对比图表、利润走势图表、分类占比、合伙人利润分配、供应商概况、发票清单、趋势分析 |
+| 用户管理 | 创建用户、用户列表查看、角色分配、权限矩阵查看 |
 | 导入导出 | 批量导入交易数据（JSON）、导出完整报表 |
 | 系统登录 | 权限验证，仅授权人员可使用 |
 | 版本记录 | 系统版本提示与更新记录查看 |
@@ -49,26 +58,29 @@ GitHub Pages 部署地址：
 ## 项目结构
 
 ```
-openspec-demo/
+letsFinace/
+├── index.html              # Web 前端界面（单页应用，GitHub Pages 入口）
+├── demo-data.json          # 模拟数据
+├── .nojekyll               # 禁用 Jekyll 处理
 ├── public/
-│   ├── index.html              # Web 前端界面（单页应用）
-│   └── demo-data.json          # 模拟数据
+│   ├── index.html          # 前端源文件
+│   └── demo-data.json      # 模拟数据源文件
 ├── src/
-│   ├── store.js                # 内存数据存储
-│   ├── project.js              # 项目服务
-│   ├── transaction.js          # 交易服务
-│   ├── profit.js               # 利润计算服务
-│   ├── supplier.js             # 供应商服务
-│   ├── invoice.js              # 发票服务（含模拟OCR）
-│   ├── excel.js                # Excel 导入导出服务
-│   └── api.js                  # Express REST API
+│   ├── store.js            # 内存数据存储
+│   ├── project.js          # 项目服务
+│   ├── transaction.js      # 交易服务
+│   ├── profit.js           # 利润计算服务
+│   ├── supplier.js         # 供应商服务
+│   ├── invoice.js          # 发票服务（含模拟OCR）
+│   ├── excel.js            # Excel 导入导出服务
+│   └── api.js              # Express REST API
 ├── tests/
-│   ├── unit/                   # 单元测试
-│   └── system/                 # 系统测试
+│   ├── unit/               # 单元测试
+│   └── system/             # 系统测试
 ├── docs/
-│   ├── user-guide.md           # 用户使用说明
-│   └── api-reference.md        # API 参考文档
-├── server.js                   # 服务入口
+│   ├── user-guide.md       # 用户使用说明
+│   └── api-reference.md    # API 参考文档
+├── server.js               # 服务入口（本地开发用）
 ├── package.json
 └── README.md
 ```
@@ -79,11 +91,13 @@ openspec-demo/
 # 安装依赖
 npm install
 
-# 启动服务
+# 启动服务（带后端 API）
 npm start
 
 # 访问 http://localhost:3000
 ```
+
+> 本地运行时系统使用后端 API；部署到 GitHub Pages 时自动切换为前端内存存储模式，无需后端。
 
 ## 测试
 
@@ -100,12 +114,23 @@ npm run test:system
 
 ## 技术栈
 
-- Node.js 20+ / Express 4
-- Jest + Supertest（测试）
-- 原生 HTML/JS（前端）
+- Node.js 20+ / Express 4（本地开发后端）
+- 原生 HTML/CSS/JS（前端，无框架依赖）
+- Canvas API（图表绘制）
 - Lucide Icons（图标）
+- Jest + Supertest（测试）
+- GitHub Pages（静态部署）
 
 ## 版本记录
+
+### v1.1.0 (2026-06-19)
+
+- 所有页面的项目ID改为下拉选择框，动态加载项目列表
+- 新增供应商列表查询功能
+- 修复利润计算字段兼容性问题
+- 修复供应商对账返回格式
+- 完善前端内存存储模式，支持纯静态部署
+- 修复模拟数据加载逻辑（扁平数据结构）
 
 ### v1.0.0 (2026-06-19)
 
@@ -120,6 +145,7 @@ npm run test:system
 - 导入导出：批量导入交易数据（JSON）、导出完整报表
 - 系统登录页面：权限验证，仅授权人员可使用
 - 版本信息与更新记录功能
+- GitHub Pages 静态部署支持
 
 ## OpenSpec 规范
 

@@ -1198,7 +1198,7 @@
       </div>
       <div class="card">
         <h3><span class="icon" style="background:rgba(42,157,143,0.1)"><i data-lucide="user-plus" style="color:var(--teal)"></i></span> 添加成员</h3>
-        <div class="form-group"><label>项目ID</label><input id="m-pid" placeholder="project-1"></div>
+        <div class="form-group"><label>项目ID</label><select id="m-pid" class="pid-select"><option value="">-- 选择项目 --</option></select></div>
         <div class="form-group"><label>用户ID</label><input id="m-uid" placeholder="user-2"></div>
         <div class="form-group"><label>角色</label>
           <select id="m-role"><option value="editor">编辑</option><option value="viewer">只读</option><option value="admin">管理员</option></select>
@@ -1208,7 +1208,7 @@
       </div>
       <div class="card">
         <h3><span class="icon" style="background:rgba(244,162,97,0.1)"><i data-lucide="sliders-horizontal" style="color:var(--gold)"></i></span> 设置分成比例</h3>
-        <div class="form-group"><label>项目ID</label><input id="r-pid" placeholder="project-1"></div>
+        <div class="form-group"><label>项目ID</label><select id="r-pid" class="pid-select"><option value="">-- 选择项目 --</option></select></div>
         <div class="form-group"><label>比例JSON</label><input id="r-json" value='{"user-1":0.5,"user-2":0.5}'></div>
         <button class="btn btn-gold" onclick="setRatios()"><i data-lucide="settings-2"></i>设置比例</button>
       </div>
@@ -1225,7 +1225,7 @@
     <div class="grid">
       <div class="card">
         <h3><span class="icon" style="background:rgba(233,69,96,0.1)"><i data-lucide="receipt" style="color:var(--accent)"></i></span> 记录收支</h3>
-        <div class="form-group"><label>项目ID</label><input id="t-pid" placeholder="project-1"></div>
+        <div class="form-group"><label>项目ID</label><select id="t-pid" class="pid-select"><option value="">-- 选择项目 --</option></select></div>
         <div class="form-group"><label>类型</label>
           <select id="t-type"><option value="income">收入</option><option value="expense">支出</option></select>
         </div>
@@ -1238,7 +1238,7 @@
       </div>
       <div class="card">
         <h3><span class="icon" style="background:rgba(42,157,143,0.1)"><i data-lucide="search" style="color:var(--teal)"></i></span> 查询与统计</h3>
-        <div class="form-group"><label>项目ID</label><input id="q-pid" placeholder="project-1"></div>
+        <div class="form-group"><label>项目ID</label><select id="q-pid" class="pid-select"><option value="">-- 选择项目 --</option></select></div>
         <div class="form-group"><label>开始日期</label><input id="q-from" type="date"></div>
         <div class="form-group"><label>结束日期</label><input id="q-to" type="date"></div>
         <div style="display:flex;gap:0.5rem">
@@ -1259,13 +1259,13 @@
     <div class="grid">
       <div class="card">
         <h3><span class="icon" style="background:rgba(244,162,97,0.1)"><i data-lucide="coins" style="color:var(--gold)"></i></span> 利润计算</h3>
-        <div class="form-group"><label>项目ID</label><input id="pr-pid" placeholder="project-1"></div>
+        <div class="form-group"><label>项目ID</label><select id="pr-pid" class="pid-select"><option value="">-- 选择项目 --</option></select></div>
         <button class="btn btn-primary" onclick="calcProfit()"><i data-lucide="calculator"></i>计算利润</button>
         <div id="profit-result" style="margin-top:1rem"></div>
       </div>
       <div class="card">
         <h3><span class="icon" style="background:rgba(42,157,143,0.1)"><i data-lucide="lightbulb" style="color:var(--teal)"></i></span> 情景模拟</h3>
-        <div class="form-group"><label>项目ID</label><input id="sim-pid" placeholder="project-1"></div>
+        <div class="form-group"><label>项目ID</label><select id="sim-pid" class="pid-select"><option value="">-- 选择项目 --</option></select></div>
         <div class="form-group"><label>额外收入</label><input id="sim-inc" type="number" value="0"></div>
         <div class="form-group"><label>额外支出</label><input id="sim-exp" type="number" value="0"></div>
         <button class="btn btn-teal" onclick="simulateProfit()"><i data-lucide="flask-conical"></i>模拟</button>
@@ -1279,7 +1279,7 @@
     <div class="grid">
       <div class="card">
         <h3><span class="icon" style="background:rgba(233,69,96,0.1)"><i data-lucide="building-2" style="color:var(--accent)"></i></span> 添加供应商</h3>
-        <div class="form-group"><label>项目ID</label><input id="s-pid" placeholder="project-1"></div>
+        <div class="form-group"><label>项目ID</label><select id="s-pid" class="pid-select"><option value="">-- 选择项目 --</option></select></div>
         <div class="form-group"><label>供应商名称</label><input id="s-name" placeholder="例如：印刷厂"></div>
         <div class="form-group"><label>联系方式</label><input id="s-contact" placeholder="电话/邮箱"></div>
         <button class="btn btn-primary" onclick="addSupplier()"><i data-lucide="plus"></i>添加</button>
@@ -1310,13 +1310,13 @@
     <div class="grid">
       <div class="card">
         <h3><span class="icon" style="background:rgba(233,69,96,0.1)"><i data-lucide="upload" style="color:var(--accent)"></i></span> 上传发票（模拟OCR）</h3>
-        <div class="form-group"><label>项目ID</label><input id="i-pid" placeholder="project-1"></div>
+        <div class="form-group"><label>项目ID</label><select id="i-pid" class="pid-select"><option value="">-- 选择项目 --</option></select></div>
         <div class="form-group"><label>文件名</label><input id="i-file" placeholder="invoice_2024_001.jpg"></div>
         <button class="btn btn-primary" onclick="uploadInvoice()"><i data-lucide="scan"></i>上传</button>
       </div>
       <div class="card">
         <h3><span class="icon" style="background:rgba(42,157,143,0.1)"><i data-lucide="files" style="color:var(--teal)"></i></span> 发票列表</h3>
-        <div class="form-group"><label>项目ID</label><input id="il-pid" placeholder="project-1"></div>
+        <div class="form-group"><label>项目ID</label><select id="il-pid" class="pid-select"><option value="">-- 选择项目 --</option></select></div>
         <button class="btn btn-teal" onclick="listInvoices()"><i data-lucide="search"></i>查询</button>
         <div id="invoice-list" style="margin-top:1rem"></div>
       </div>
@@ -1328,7 +1328,7 @@
     <div class="card" style="margin-bottom:1.25rem">
       <h3><span class="icon" style="background:rgba(244,162,97,0.1)"><i data-lucide="bar-chart-3" style="color:var(--gold)"></i></span> 财务报表</h3>
       <div class="report-controls">
-        <div class="form-group"><label>项目ID</label><input id="rep-pid" placeholder="project-1"></div>
+        <div class="form-group"><label>项目ID</label><select id="rep-pid" class="pid-select"><option value="">-- 选择项目 --</option></select></div>
         <div class="form-group"><label>年份</label>
           <select id="rep-year">
             <option value="2026">2026年</option>
@@ -1436,7 +1436,7 @@
     <div class="grid">
       <div class="card">
         <h3><span class="icon" style="background:rgba(42,157,143,0.1)"><i data-lucide="file-up" style="color:var(--teal)"></i></span> 导入交易（JSON格式）</h3>
-        <div class="form-group"><label>项目ID</label><input id="im-pid" placeholder="project-1"></div>
+        <div class="form-group"><label>项目ID</label><select id="im-pid" class="pid-select"><option value="">-- 选择项目 --</option></select></div>
         <div class="form-group"><label>数据</label>
           <textarea id="im-data" rows="6">[
   {"type":"income","amount":5000,"date":"2024-01-15","description":"客户A付款","category":"service"},
@@ -1448,7 +1448,7 @@
       </div>
       <div class="card">
         <h3><span class="icon" style="background:rgba(233,69,96,0.1)"><i data-lucide="file-down" style="color:var(--accent)"></i></span> 导出报表</h3>
-        <div class="form-group"><label>项目ID</label><input id="ex-pid" placeholder="project-1"></div>
+        <div class="form-group"><label>项目ID</label><select id="ex-pid" class="pid-select"><option value="">-- 选择项目 --</option></select></div>
         <button class="btn btn-teal" onclick="exportData()"><i data-lucide="download"></i>导出</button>
         <div id="export-result" style="margin-top:1rem"></div>
       </div>
@@ -1614,6 +1614,26 @@
 
 <script>
 const API = '';
+
+// ===== Refresh all project ID select dropdowns =====
+function refreshProjectSelects() {
+  const projects = Object.values(demoStore.projects);
+  const selects = document.querySelectorAll('.pid-select');
+  selects.forEach(sel => {
+    const currentVal = sel.value;
+    sel.innerHTML = '<option value="">-- 选择项目 --</option>';
+    projects.forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = p.id + ' - ' + p.name;
+      sel.appendChild(opt);
+    });
+    // Restore previous selection if still valid
+    if (currentVal && projects.find(p => p.id === currentVal)) {
+      sel.value = currentVal;
+    }
+  });
+}
 
 // ===== In-memory store for static demo mode =====
 const demoStore = {
@@ -1861,6 +1881,7 @@ async function createProject() {
   try {
     const p = await post('/api/projects', { name: document.getElementById('p-name').value, description: document.getElementById('p-desc').value, createdBy: document.getElementById('p-user').value });
     alertBox('项目创建成功: ' + p.id);
+    refreshProjectSelects();
     loadProjects();
   } catch(e) { alertBox(e.message, 'error'); }
 }
@@ -2856,6 +2877,8 @@ async function loadDemoData() {
     }
 
     alertBox('模拟数据加载成功！');
+    // Refresh all project select dropdowns
+    refreshProjectSelects();
     // Auto-fill report project ID with the first project
     const firstPid = Object.values(demoStore.projects)[0];
     if (firstPid) {

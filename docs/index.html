@@ -1116,7 +1116,7 @@
       <span style="font-size:0.75rem;color:var(--text-muted)">（后续开发完成后将删除此提示）</span>
     </div>
     <div class="login-version">
-      当前版本 v1.0.0 &middot; <a onclick="toggleChangelog()">查看更新记录</a>
+      当前版本 v1.1.0 &middot; <a onclick="toggleChangelog()">查看更新记录</a>
     </div>
   </div>
 </div>
@@ -1129,6 +1129,20 @@
       <button class="changelog-close" onclick="toggleChangelog()"><i data-lucide="x"></i></button>
     </div>
     <div class="changelog-body">
+      <div class="changelog-item">
+        <div class="cl-version"><i data-lucide="tag"></i>v1.1.0</div>
+        <div class="cl-date">2026-06-19</div>
+        <ul class="cl-list">
+          <li class="cl-new">所有页面的项目ID改为下拉选择框，动态加载项目列表 <span class="cl-tag new">新增</span></li>
+          <li class="cl-new">供应商列表查询功能，支持查看供应商详情和付款汇总 <span class="cl-tag new">新增</span></li>
+          <li class="cl-fix">修复利润计算字段兼容性问题（totalIncome/totalExpense） <span class="cl-tag fix">修复</span></li>
+          <li class="cl-fix">修复供应商对账返回格式，支持已付/待付/逾期分类 <span class="cl-tag fix">修复</span></li>
+          <li class="cl-fix">修复模拟数据加载逻辑，支持扁平数据结构 <span class="cl-tag fix">修复</span></li>
+          <li class="cl-fix">修复报表中心 export 接口和利润分配字段兼容性 <span class="cl-tag fix">修复</span></li>
+          <li class="cl-improve">完善前端内存存储模式，支持纯静态部署（GitHub Pages） <span class="cl-tag improve">优化</span></li>
+          <li class="cl-improve">API 请求失败时自动切换本地存储，无需手动配置 <span class="cl-tag improve">优化</span></li>
+        </ul>
+      </div>
       <div class="changelog-item">
         <div class="cl-version"><i data-lucide="tag"></i>v1.0.0</div>
         <div class="cl-date">2026-06-19</div>
@@ -1153,7 +1167,7 @@
 <!-- Version Bar (shown after login) -->
 <div class="version-bar" id="versionBar" style="display:none">
   <div>
-    <span class="version-tag"><i data-lucide="tag"></i>v1.0.0</span>
+    <span class="version-tag"><i data-lucide="tag"></i>v1.1.0</span>
     <span style="margin-left:0.5rem">合伙记 &copy; 2026</span>
   </div>
   <div>
@@ -1490,22 +1504,26 @@
         <h3><i data-lucide="rocket"></i>快速开始</h3>
         <div class="help-step">
           <div class="help-step-num">1</div>
-          <p>在 <strong>项目管理</strong> 中创建一个项目，填写项目名称和描述</p>
+          <p>使用测试账号登录系统（管理员：admin / admin123，普通用户：user / user123）</p>
         </div>
         <div class="help-step">
           <div class="help-step-num">2</div>
-          <p>添加项目成员，设置各自的 <strong>角色</strong> 和 <strong>分成比例</strong></p>
+          <p>点击顶部 <strong>"加载模拟数据"</strong> 按钮，系统自动创建示例项目、交易、供应商和发票数据</p>
         </div>
         <div class="help-step">
           <div class="help-step-num">3</div>
-          <p>在 <strong>收支记录</strong> 中录入每笔收入和支出，选择类型、填写金额和日期</p>
+          <p>所有页面的项目ID通过 <strong>下拉框选择</strong>，加载模拟数据后自动填充可用项目</p>
         </div>
         <div class="help-step">
           <div class="help-step-num">4</div>
-          <p>在 <strong>利润计算</strong> 中查看自动计算的利润和合伙人分配方案</p>
+          <p>在 <strong>收支记录</strong> 中录入每笔收入和支出，选择类型、填写金额和日期</p>
         </div>
         <div class="help-step">
           <div class="help-step-num">5</div>
+          <p>在 <strong>利润计算</strong> 中查看自动计算的利润和合伙人分配方案</p>
+        </div>
+        <div class="help-step">
+          <div class="help-step-num">6</div>
           <p>在 <strong>报表中心</strong> 生成月度/年度财务报表和趋势分析图表</p>
         </div>
       </div>
@@ -1605,6 +1623,14 @@
         <div class="help-tip">
           <i data-lucide="info"></i>
           <span>本系统使用内存存储，重启服务后数据会清空。可通过导入导出功能备份和恢复数据。</span>
+        </div>
+        <div class="help-tip">
+          <i data-lucide="info"></i>
+          <span>系统支持 <strong>纯静态部署</strong>（如 GitHub Pages），无需后端服务器即可运行所有功能。API 请求失败时自动切换为前端内存存储模式。</span>
+        </div>
+        <div class="help-tip">
+          <i data-lucide="info"></i>
+          <span>创建新项目后，所有页面的项目ID下拉框会自动刷新，无需手动刷新页面。</span>
         </div>
       </div>
 

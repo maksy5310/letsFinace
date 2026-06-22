@@ -198,3 +198,31 @@ GET /api/health
 - `201` - 创建成功
 - `400` - 请求参数错误
 - `404` - 资源不存在
+
+### 错误场景详细说明
+
+| 接口 | 错误场景 | 状态码 | 错误信息示例 |
+|------|----------|--------|-------------|
+| `POST /api/projects` | 缺少项目名称或创建者 | 400 | `Project name and creator are required` |
+| `GET /api/projects/:id` | 项目不存在 | 404 | `Project not found` |
+| `POST /api/projects/:id/members` | 无效角色 | 400 | `Invalid role` |
+| `POST /api/projects/:id/members` | 重复添加成员 | 400 | `User already a member` |
+| `POST /api/projects/:id/ratios` | 比例之和不等于1.0 | 400 | `Partner ratios must sum to 1.0` |
+| `POST /api/projects/:id/transactions` | 无效交易类型 | 400 | `Type must be income or expense` |
+| `POST /api/projects/:id/transactions` | 金额为负数 | 400 | `Amount must be a non-negative number` |
+| `POST /api/projects/:id/transactions` | 项目不存在 | 400 | `Project not found` |
+| `GET /api/projects/:id/profit` | 项目不存在 | 400 | `Project not found` |
+| `POST /api/projects/:id/suppliers` | 缺少供应商名称 | 400 | - |
+| `POST /api/suppliers/:sid/payments` | 无效付款状态 | 400 | `Status must be pending, paid, or overdue` |
+| `GET /api/suppliers/:sid/reconcile` | 供应商不存在 | 400 | `Supplier not found` |
+| `POST /api/projects/:id/invoices` | 缺少文件名 | 400 | `ProjectId and fileName are required` |
+| `POST /api/projects/:id/import` | rows 不是数组 | 400 | `Rows must be an array` |
+| `GET /api/projects/:id/export` | 项目不存在 | 400 | `Project not found` |
+| `POST /api/users` | 缺少用户名 | 400 | `User name is required` |
+| `POST /api/users` | 无效角色 | 400 | `Invalid role: superadmin` |
+| `GET /api/users/:id` | 用户不存在 | 404 | `User not found` |
+| `PUT /api/users/:id/role` | 无效角色 | 400 | `Invalid role: superadmin` |
+
+## 测试
+
+API 错误场景已通过系统测试覆盖，详见 `tests/system/api-errors.test.js`。完整工作流测试见 `tests/system/api.test.js`。
